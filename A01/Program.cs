@@ -6,8 +6,7 @@ class Program
     {
         Random random = new Random();
         Console.WriteLine("Think of a number between 1 and 100.");
-        int secretNumber = random.Next(1, 101);
-        int attempts = 0;
+        var (secretNumber, attempts) = ((random.Next(1, 101), (0)));
         const int maxAttempts = 7;
         Console.WriteLine("Guess the number between 1 and 100...!");
         while (attempts < maxAttempts)
