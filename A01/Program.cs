@@ -6,29 +6,30 @@ class Program
     {
         Random random = new Random();
         Console.WriteLine("Think of a number between 1 and 100.");
-        int secretNumber = random.Next(1, 101), guess;
+        int secretNumber = random.Next(1, 101);
+        int attempts = 0;
+        const int maxAttempts = 7;
         Console.WriteLine("Guess the number between 1 and 100...!");
-        do
+        while (attempts < maxAttempts)
         {
             Console.Write("Enter your guess: ");
-            if (!int.TryParse(Console.ReadLine(), out guess))
+            int guess = int.Parse(Console.ReadLine());
+            attempts++;
+            if (guess == secretNumber)
             {
-                Console.WriteLine("Please enter a valid number.");
-                continue;
+                Console.WriteLine("You guessed correctly!");
+                return;
             }
-            if (guess > secretNumber)
+            else if (guess > secretNumber)
             {
                 Console.WriteLine("Your guess is too high");
             }
-            else if (guess < secretNumber)
+            else
             {
                 Console.WriteLine("Your guess is too low");
             }
-            else
-            {
-                Console.WriteLine("You guessed correctly");
-            }
-        } while (guess != secretNumber);
+        }
+        Console.WriteLine($"You used all {maxAttempts} guesses. The correct number was {secretNumber}.");
 
     }
 }
