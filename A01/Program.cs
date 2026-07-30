@@ -9,14 +9,13 @@
 namespace A01;
 
 class Program {
-#pragma warning disable IDE0060 // Remove unused parameter
-   static void Main (string[] args) {
-      const int MINVALUE = 1; // Lowest possible number
-      const int MAXVALUE = 100; // Highest possible number
-      const int MAX = 7; // Maximum guesses allowed
+   const int MINVALUE = 1; // Lowest possible number
+   const int MAXVALUE = 100; // Highest possible number
+   const int MAXATTEMPTS = 7; // Maximum guesses allowed
+   static void Main () {
       Console.WriteLine ($"Guess the number between {MINVALUE} and {MAXVALUE}...!");
       int secretNumber = new Random ().Next (MINVALUE, MAXVALUE + 1);
-      for (int attempts = 1; attempts <= MAX; attempts++) {
+      for (int attempts = 1; attempts <= MAXATTEMPTS; attempts++) {
          int guess = ReadGuess ();
          if (guess == secretNumber) {
             Console.WriteLine ("You guessed correctly!");
@@ -24,15 +23,15 @@ class Program {
          }
          Console.WriteLine (guess > secretNumber ? "Your guess is too high" : "Your guess is too low");
       }
-      Console.WriteLine ($"You used all {MAX} guesses. The correct number was {secretNumber}.");
+      Console.WriteLine ($"You used all {MAXATTEMPTS} guesses. The correct number was {secretNumber}.");
    }
-   private static int ReadGuess () {
+
+   // Reads and validates the user's guess.
+   static int ReadGuess () {
       while (true) {
          Console.Write ("Enter your guess: ");
-         if (int.TryParse (Console.ReadLine (), out int guess)) return guess;
-         Console.WriteLine ("Please enter a valid number.");
+         if (int.TryParse (Console.ReadLine (), out int guess) && guess >= MINVALUE && guess <= MAXVALUE) return guess;
+         Console.WriteLine ($"Please enter a number between {MINVALUE} and {MAXVALUE}.");
       }
    }
-#pragma warning restore IDE0060 // Remove unused parameter
-
 }
