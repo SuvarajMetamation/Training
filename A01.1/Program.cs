@@ -51,7 +51,7 @@ class Program {
    const int MAXATTEMPTS = 7; // Maximum number of attempts
    const ConsoleColor GREEN = ConsoleColor.Green; // Successful guess
    const ConsoleColor RED = ConsoleColor.Red; // Invalid response
-   const ConsoleColor CYAN = ConsoleColor.Cyan;
+   const ConsoleColor CYAN = ConsoleColor.Cyan; // Hint
    #endregion
 }
 #endregion
