@@ -21,8 +21,8 @@ class Program {
             return;
          }
          WriteColoredMessage (guess > secretNumber ? "Your guess is too high" :
-            "Your guess is too low", HINTCOLOR);
-         WriteColoredMessage ($"Remaining guesses: {MAXATTEMPTS - attempts}", INFOCOLOR);
+            "Your guess is too low", YELLOW);
+         WriteColoredMessage ($"Remaining guesses: {MAXATTEMPTS - attempts}", CYAN);
       }
       WriteColoredMessage (
          $"You used all {MAXATTEMPTS} guesses. The correct number was {secretNumber}.",
@@ -36,7 +36,7 @@ class Program {
          if (int.TryParse (Console.ReadLine (), out int guess) && guess >= MINVALUE &&
             guess <= MAXVALUE) return guess;
          WriteColoredMessage ($"Please enter a number between {MINVALUE} and {MAXVALUE}.",
-            ConsoleColor.Red);
+            RED);
       }
    }
 
@@ -52,8 +52,9 @@ class Program {
    const int MINVALUE = 1; // Lowest possible number
    const int MAXVALUE = 100; // Highest possible number
    const int MAXATTEMPTS = 7; // Maximum guesses allowed
-   const ConsoleColor HINTCOLOR = ConsoleColor.Yellow; // Too high/too low hints
-   const ConsoleColor INFOCOLOR = ConsoleColor.Cyan; //Remaining guess
+   const ConsoleColor YELLOW = ConsoleColor.Yellow; // Too high/too low hints
+   const ConsoleColor CYAN = ConsoleColor.Cyan; // Remaining guess
+   const ConsoleColor RED = ConsoleColor.Red; // Invalid Input
    #endregion
 }
 #endregion
