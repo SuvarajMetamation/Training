@@ -9,21 +9,19 @@
 namespace A01;
 
 class Program {
-   const int MINVALUE = 1; // Lowest possible number
-   const int MAXVALUE = 100; // Highest possible number
-   const int MAXATTEMPTS = 7; // Maximum guesses allowed
    static void Main () {
       Console.WriteLine ($"Guess the number between {MINVALUE} and {MAXVALUE}...!");
       int secretNumber = new Random ().Next (MINVALUE, MAXVALUE + 1);
       for (int attempts = 1; attempts <= MAXATTEMPTS; attempts++) {
          int guess = ReadGuess ();
          if (guess == secretNumber) {
-            Console.WriteLine ("You guessed correctly!");
+            WriteColoredMessage ("You guessed correctly!", ConsoleColor.Green);
             return;
          }
-         Console.WriteLine (guess > secretNumber ? "Your guess is too high" : "Your guess is too low");
+         WriteColoredMessage (guess > secretNumber ? "Your guess is too high" : "Your guess is too low", ConsoleColor.Yellow);
+         WriteColoredMessage ($"Remaining guesses: {MAXATTEMPTS - attempts}", ConsoleColor.Cyan);
       }
-      Console.WriteLine ($"You used all {MAXATTEMPTS} guesses. The correct number was {secretNumber}.");
+      WriteColoredMessage ($"You used all {MAXATTEMPTS} guesses. The correct number was {secretNumber}.", ConsoleColor.DarkGreen);
    }
 
    // Reads and validates the user's guess.
@@ -31,7 +29,18 @@ class Program {
       while (true) {
          Console.Write ("Enter your guess: ");
          if (int.TryParse (Console.ReadLine (), out int guess) && guess >= MINVALUE && guess <= MAXVALUE) return guess;
-         Console.WriteLine ($"Please enter a number between {MINVALUE} and {MAXVALUE}.");
+         WriteColoredMessage ($"Please enter a number between {MINVALUE} and {MAXVALUE}.", ConsoleColor.Red);
       }
    }
+
+   // Output decorators for more user understandable.
+   static void WriteColoredMessage (string message, ConsoleColor color) {
+      Console.ForegroundColor = color;
+      Console.WriteLine (message);
+      Console.ResetColor ();
+   }
+
+   const int MINVALUE = 1; // Lowest possible number
+   const int MAXVALUE = 100; // Highest possible number
+   const int MAXATTEMPTS = 7; // Maximum guesses allowed
 }
