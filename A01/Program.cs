@@ -3,12 +3,14 @@
 // Copyright (c) Metamation India.
 // ------------------------------------------------------------------------
 // Program.cs
-// Number Guessing Game.
+// A01: Number Guessing Game.
 // --------------------------------------------------------------------------------------------
 
 namespace A01;
 
+#region class Program -----------------------------------------------------------------------------
 class Program {
+   #region Methods --------------------------------------------------
    static void Main () {
       Console.WriteLine ($"Guess the number between {MINVALUE} and {MAXVALUE}...!");
       int secretNumber = new Random ().Next (MINVALUE, MAXVALUE + 1);
@@ -18,18 +20,23 @@ class Program {
             WriteColoredMessage ("You guessed correctly!", ConsoleColor.Green);
             return;
          }
-         WriteColoredMessage (guess > secretNumber ? "Your guess is too high" : "Your guess is too low", ConsoleColor.Yellow);
-         WriteColoredMessage ($"Remaining guesses: {MAXATTEMPTS - attempts}", ConsoleColor.Cyan);
+         WriteColoredMessage (guess > secretNumber ? "Your guess is too high" :
+            "Your guess is too low", HINTCOLOR);
+         WriteColoredMessage ($"Remaining guesses: {MAXATTEMPTS - attempts}", INFOCOLOR);
       }
-      WriteColoredMessage ($"You used all {MAXATTEMPTS} guesses. The correct number was {secretNumber}.", ConsoleColor.DarkGreen);
+      WriteColoredMessage (
+         $"You used all {MAXATTEMPTS} guesses. The correct number was {secretNumber}.",
+         ConsoleColor.DarkGreen);
    }
 
    // Reads and validates the user's guess.
    static int ReadGuess () {
       while (true) {
          Console.Write ("Enter your guess: ");
-         if (int.TryParse (Console.ReadLine (), out int guess) && guess >= MINVALUE && guess <= MAXVALUE) return guess;
-         WriteColoredMessage ($"Please enter a number between {MINVALUE} and {MAXVALUE}.", ConsoleColor.Red);
+         if (int.TryParse (Console.ReadLine (), out int guess) && guess >= MINVALUE &&
+            guess <= MAXVALUE) return guess;
+         WriteColoredMessage ($"Please enter a number between {MINVALUE} and {MAXVALUE}.",
+            ConsoleColor.Red);
       }
    }
 
@@ -39,8 +46,14 @@ class Program {
       Console.WriteLine (message);
       Console.ResetColor ();
    }
+   #endregion
 
+   #region const ----------------------------------------------------
    const int MINVALUE = 1; // Lowest possible number
    const int MAXVALUE = 100; // Highest possible number
    const int MAXATTEMPTS = 7; // Maximum guesses allowed
+   const ConsoleColor HINTCOLOR = ConsoleColor.Yellow; // Too high/too low hints
+   const ConsoleColor INFOCOLOR = ConsoleColor.Cyan; //Remaining guess
+   #endregion
 }
+#endregion
