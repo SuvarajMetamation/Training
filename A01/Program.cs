@@ -35,8 +35,7 @@ class Program {
          Console.Write ("Enter your guess: ");
          if (int.TryParse (Console.ReadLine (), out int guess) && guess >= MINVALUE &&
             guess <= MAXVALUE) return guess;
-         WriteColoredMessage ($"Please enter a number between {MINVALUE} and {MAXVALUE}.",
-            RED);
+         WriteColoredMessage ($"Please enter a number between {MINVALUE} and {MAXVALUE}.", RED);
       }
    }
 
