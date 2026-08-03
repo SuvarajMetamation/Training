@@ -3,31 +3,29 @@
 // Copyright (c) Metamation India.
 // ------------------------------------------------------------------------
 // Program.cs
-// A01: Number Guessing Game(Reverse).
+// A01.1: Number Guessing Game(Reverse).
 // The computer uses the Binary Search algorithm to guess the number.
 // chosen by the user within the specified range.
 // --------------------------------------------------------------------------------------------
 
 namespace A01._1;
 
+using static Console;
+using static System.ConsoleColor;
+
 #region class Program -----------------------------------------------------------------------------
 class Program {
    #region Methods --------------------------------------------------
    static void Main () {
       int low = MINVALUE, high = MAXVALUE;
-      Console.WriteLine ($"Think of a number between {MINVALUE} and {MAXVALUE}, " +
+      WriteLine ($"Think of a number between {MINVALUE} and {MAXVALUE}, " +
          $"and I'll guess it!");
       while (low <= high) {
-         int mid = CalculateMid (low, high);
+         int mid = low + (high - low) / 2;
          if (HandleResponse (ReadResponse (mid), mid, ref low, ref high)) return;
          WriteColoredMessage ($"Possible range: {low} to {high}", CYAN);
       }
       WriteColoredMessage ("Your responses are inconsistent. Please restart the game.", RED);
-   }
-
-   // Calculates the midpoint of the current search range.
-   static int CalculateMid (int minimum, int maximum) {
-      return minimum + (maximum - minimum) / 2;
    }
 
    // Reads and validates the user's response.
@@ -35,15 +33,15 @@ class Program {
       while (true) {
          WriteColoredMessage ($"Is your number {guess}? Press H (High), L (Low), or C (Correct): ",
             YELLOW, false);
-         switch (Console.ReadKey (true).Key) {
+         switch (ReadKey (true).Key) {
             case ConsoleKey.H:
-               Console.WriteLine ("H");
+               WriteLine ("H");
                return Response.High;
             case ConsoleKey.L:
-               Console.WriteLine ("L");
+               WriteLine ("L");
                return Response.Low;
             case ConsoleKey.C:
-               Console.WriteLine ("C");
+               WriteLine ("C");
                return Response.Correct;
             default:
                WriteColoredMessage (
@@ -73,10 +71,10 @@ class Program {
 
    // Output decorators for more user understandable.
    static void WriteColoredMessage (string message, ConsoleColor color, bool newLine = true) {
-      Console.ForegroundColor = color;
-      if (newLine) Console.WriteLine (message);
-      else Console.Write (message);
-      Console.ResetColor ();
+      ForegroundColor = color;
+      if (newLine) WriteLine (message);
+      else Write (message);
+      ResetColor ();
    }
    #endregion
 
@@ -91,10 +89,10 @@ class Program {
    #region const ----------------------------------------------------
    const int MINVALUE = 0; // Lowest possible number
    const int MAXVALUE = 100; // Highest possible number
-   const ConsoleColor GREEN = ConsoleColor.Green; // Successful guess
-   const ConsoleColor RED = ConsoleColor.Red; // Invalid response
-   const ConsoleColor CYAN = ConsoleColor.Cyan; // Hint
-   const ConsoleColor YELLOW = ConsoleColor.Yellow;
+   const ConsoleColor GREEN = Green; // Successful guess
+   const ConsoleColor RED = Red; // Invalid response
+   const ConsoleColor CYAN = Cyan; // Hint
+   const ConsoleColor YELLOW = Yellow;
    #endregion
 }
 #endregion
