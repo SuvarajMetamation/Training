@@ -24,27 +24,27 @@ class Program {
          int mid = low + (high - low) / 2;
          EResponse response = ReadResponse (mid);
          if (response == EResponse.Correct) {
-            WriteColoredMessage ($"\nI found it! Your number is {mid}.", EOutputType.Success);
+            Display ($"\nI found it! Your number is {mid}.", EOutputType.Success);
             return;
          }
          HandleResponse (response, mid, ref low, ref high);
-         WriteColoredMessage ($"\nPossible range: {low} to {high}", EOutputType.Hint);
+         Display ($"\nPossible range: {low} to {high}", EOutputType.Hint);
       }
-      WriteColoredMessage ("\nYour responses are inconsistent. Please restart the game.",
+      Display ("\nYour responses are inconsistent. Please restart the game.",
          EOutputType.Error);
    }
 
    // Reads and validates the user's response.
    static EResponse ReadResponse (int guess) {
       while (true) {
-         WriteColoredMessage ($"Is your number {guess}? (H)igh, (L)ow, or (C)orrect: ",
+         Display ($"Is your number {guess}? (H)igh, (L)ow, or (C)orrect: ",
             EOutputType.Prompt, false);
          switch (ReadKey ().Key) {
             case ConsoleKey.H: return EResponse.High;
             case ConsoleKey.L: return EResponse.Low;
             case ConsoleKey.C: return EResponse.Correct;
          }
-         WriteColoredMessage ("\nInvalid input. Press H, L or C.", EOutputType.Error);
+         Display ("\nInvalid input. Press H, L or C.", EOutputType.Error);
       }
    }
 
@@ -55,14 +55,13 @@ class Program {
    }
 
    // Output decorators for more user understandable.
-   static void WriteColoredMessage (string str, EOutputType messageType,
+   static void Display (string str, EOutputType outType,
       bool newLine = true) {
-      ForegroundColor = messageType switch {
+      ForegroundColor = outType switch {
          EOutputType.Success => Green,
          EOutputType.Error => Red,
          EOutputType.Hint => Cyan,
          EOutputType.Prompt => Yellow,
-         _ => throw new ArgumentOutOfRangeException (nameof (messageType))
       };
       if (newLine) WriteLine (str);
       else Write (str);
