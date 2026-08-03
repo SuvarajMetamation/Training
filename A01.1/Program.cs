@@ -24,27 +24,27 @@ class Program {
          int mid = low + (high - low) / 2;
          EResponse response = ReadResponse (mid);
          if (response == EResponse.Correct) {
-            WriteColoredMessage ($"\nI found it! Your number is {mid}.", EMessageType.Success);
+            WriteColoredMessage ($"\nI found it! Your number is {mid}.", EOutputType.Success);
             return;
          }
          HandleResponse (response, mid, ref low, ref high);
-         WriteColoredMessage ($"\nPossible range: {low} to {high}", EMessageType.Hint);
+         WriteColoredMessage ($"\nPossible range: {low} to {high}", EOutputType.Hint);
       }
       WriteColoredMessage ("\nYour responses are inconsistent. Please restart the game.",
-         EMessageType.Error);
+         EOutputType.Error);
    }
 
    // Reads and validates the user's response.
    static EResponse ReadResponse (int guess) {
       while (true) {
          WriteColoredMessage ($"Is your number {guess}? (H)igh, (L)ow, or (C)orrect: ",
-            EMessageType.Prompt, false);
+            EOutputType.Prompt, false);
          switch (ReadKey ().Key) {
             case ConsoleKey.H: return EResponse.High;
             case ConsoleKey.L: return EResponse.Low;
             case ConsoleKey.C: return EResponse.Correct;
          }
-         WriteColoredMessage ("\nInvalid input. Press H, L or C.", EMessageType.Error);
+         WriteColoredMessage ("\nInvalid input. Press H, L or C.", EOutputType.Error);
       }
    }
 
@@ -55,24 +55,23 @@ class Program {
    }
 
    // Output decorators for more user understandable.
-   static void WriteColoredMessage (string message, EMessageType messageType,
+   static void WriteColoredMessage (string str, EOutputType messageType,
       bool newLine = true) {
       ForegroundColor = messageType switch {
-         EMessageType.Success => Green,
-         EMessageType.Error => Red,
-         EMessageType.Hint => Cyan,
-         EMessageType.Prompt => Yellow,
-         // This is an invalid enum value and should never happen.
-         _ => throw new ArgumentOutOfRangeException (nameof (messageType)),
+         EOutputType.Success => Green,
+         EOutputType.Error => Red,
+         EOutputType.Hint => Cyan,
+         EOutputType.Prompt => Yellow,
+         _ => throw new ArgumentOutOfRangeException (nameof (messageType))
       };
-      if (newLine) WriteLine (message);
-      else Write (message);
+      if (newLine) WriteLine (str);
+      else Write (str);
       ResetColor ();
    }
    #endregion
 
    // Represents the user's response to the computer's guess.
-   #region enum -----------------------------------------------------
+   #region Enum -----------------------------------------------------
    enum EResponse {
       High, // The guessed number is too high.
       Low, // The guessed number is too low.
@@ -80,7 +79,7 @@ class Program {
    }
 
    // Represents the type of message displayed to the user.
-   enum EMessageType {
+   enum EOutputType {
       Success,
       Error,
       Hint,
