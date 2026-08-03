@@ -10,6 +10,7 @@
 
 namespace A01._1;
 
+using System.Security.Cryptography;
 using static Console;
 using static System.ConsoleColor;
 
@@ -22,50 +23,42 @@ class Program {
          $"and I'll guess it!");
       while (low <= high) {
          int mid = low + (high - low) / 2;
-         if (HandleResponse (ReadResponse (mid), mid, ref low, ref high)) return;
-         WriteColoredMessage ($"Possible range: {low} to {high}", CYAN);
+         EResponse response = ReadResponse (mid);
+         if (response == EResponse.Correct) {
+            WriteColoredMessage ($"\nI found it! Your number is {mid}.", GREEN);
+            return;
+         }
+         HandleResponse (response, mid, ref low, ref high);
+         WriteColoredMessage ($"\nPossible range: {low} to {high}", CYAN);
       }
-      WriteColoredMessage ("Your responses are inconsistent. Please restart the game.", RED);
+      WriteColoredMessage ("\nYour responses are inconsistent. Please restart the game.", RED);
    }
 
    // Reads and validates the user's response.
-   static Response ReadResponse (int guess) {
+   static EResponse ReadResponse (int guess) {
       while (true) {
-         WriteColoredMessage ($"Is your number {guess}? Press H (High), L (Low), or C (Correct): ",
+         WriteColoredMessage ($"Is your number {guess}? (H)igh, (L)ow, or (C)orrect): ",
             YELLOW, false);
-         switch (ReadKey (true).Key) {
-            case ConsoleKey.H:
-               WriteLine ("H");
-               return Response.High;
-            case ConsoleKey.L:
-               WriteLine ("L");
-               return Response.Low;
-            case ConsoleKey.C:
-               WriteLine ("C");
-               return Response.Correct;
-            default:
-               WriteColoredMessage (
-                   "Invalid input. Press H, L or C.",
-                   RED);
-               break;
+         switch (ReadKey ().Key) {
+            case ConsoleKey.H: return EResponse.High;
+            case ConsoleKey.L: return EResponse.Low;
+            case ConsoleKey.C: return EResponse.Correct;
          }
+         WriteColoredMessage ("\nInvalid input. Press H, L or C.", RED);
       }
    }
 
    // Processes the user's response and updates the search range.
-   static bool HandleResponse (Response response, int mid, ref int low, ref int high) {
+   static bool HandleResponse (EResponse response, int mid, ref int low, ref int high) {
       switch (response) {
-         case Response.Correct:
-            WriteColoredMessage ($"I found it! Your number is {mid}.", GREEN);
-            return true;
-         case Response.High:
+         case EResponse.High:
             high = mid - 1;
             return false;
-         case Response.Low:
+         case EResponse.Low:
             low = mid + 1;
             return false;
          default:
-            throw new InvalidOperationException ("Unexpected response.");
+            throw new InvalidOperationException ("\nUnexpected response.");
       }
    }
 
@@ -78,11 +71,12 @@ class Program {
    }
    #endregion
 
+   // Represents the user's response to the computer's guess.
    #region enum -----------------------------------------------------
-   enum Response {
-      High,
-      Low,
-      Correct
+   enum EResponse {
+      High, // The guessed number is too high.
+      Low, // The guessed number is too low.
+      Correct // The guessed number is correct.
    }
    #endregion
 
@@ -92,7 +86,7 @@ class Program {
    const ConsoleColor GREEN = Green; // Successful guess
    const ConsoleColor RED = Red; // Invalid response
    const ConsoleColor CYAN = Cyan; // Hint
-   const ConsoleColor YELLOW = Yellow;
+   const ConsoleColor YELLOW = Yellow; // User input prompt
    #endregion
 }
 #endregion
