@@ -18,8 +18,8 @@ class Program {
    #region Methods --------------------------------------------------
    static void Main () {
       int low = MINVALUE, high = MAXVALUE;
-      WriteLine ($"Think of a number between {MINVALUE} and {MAXVALUE}, " +
-         $"and I'll guess it!");
+      Display ($"Think of a number between {MINVALUE} and {MAXVALUE}, " +
+         $"and I'll guess it!", EOutputType.Info);
       while (low <= high) {
          int mid = low + (high - low) / 2;
          EResponse response = ReadResponse (mid);
@@ -62,6 +62,7 @@ class Program {
          EOutputType.Error => Red,
          EOutputType.Hint => Cyan,
          EOutputType.Prompt => Yellow,
+         EOutputType.Info => White,
       };
       if (newLine) WriteLine (str);
       else Write (str);
@@ -79,10 +80,11 @@ class Program {
 
    // Represents the type of message displayed to the user.
    enum EOutputType {
-      Success,
-      Error,
-      Hint,
-      Prompt
+      Success,  // Indicates a successful operation.
+      Error, // Indicates an error or invalid input.
+      Hint,  // Displays informational hints.
+      Prompt, // Prompts the user for input.
+      Info  // Displays general information.
    }
    #endregion
 
