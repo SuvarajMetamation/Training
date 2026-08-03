@@ -19,7 +19,7 @@ class Program {
    static void Main () {
       int low = MINVALUE, high = MAXVALUE;
       Display ($"Think of a number between {MINVALUE} and {MAXVALUE}, " +
-         $"and I'll guess it!", EOutputType.Info);
+         $"and I'll guess it!");
       while (low <= high) {
          int mid = low + (high - low) / 2;
          EResponse response = ReadResponse (mid);
@@ -55,14 +55,14 @@ class Program {
    }
 
    // Output decorators for more user understandable.
-   static void Display (string str, EOutputType outType,
+   static void Display (string str, EOutputType outType = EOutputType.Info,
       bool newLine = true) {
       ForegroundColor = outType switch {
          EOutputType.Success => Green,
          EOutputType.Error => Red,
          EOutputType.Hint => Cyan,
          EOutputType.Prompt => Yellow,
-         EOutputType.Info => White,
+         EOutputType.Info => White
       };
       if (newLine) WriteLine (str);
       else Write (str);
