@@ -70,7 +70,7 @@ class Program {
    #endregion
 
    // Represents the user's response to the computer's guess.
-   #region Enums -----------------------------------------------------
+   #region Enums ----------------------------------------------------
    enum EResponse {
       High, // The guessed number is too high.
       Low, // The guessed number is too low.
