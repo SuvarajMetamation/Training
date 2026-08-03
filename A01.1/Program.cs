@@ -57,15 +57,13 @@ class Program {
    // Output decorators for more user understandable.
    static void Display (string str, EOutputType outType = EOutputType.Info,
       bool newLine = true) {
-      if (outType == EOutputType.Info) ResetColor ();
-      else {
+      if (outType != EOutputType.Info)
          ForegroundColor = outType switch {
             EOutputType.Success => Green,
             EOutputType.Error => Red,
             EOutputType.Hint => Cyan,
             EOutputType.Prompt => Yellow,
          };
-      }
       if (newLine) WriteLine (str);
       else Write (str);
       ResetColor ();
