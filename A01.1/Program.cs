@@ -62,7 +62,7 @@ class Program {
             EOutputType.Success => Green,
             EOutputType.Error => Red,
             EOutputType.Hint => Cyan,
-            EOutputType.Prompt => Yellow,
+            _ => Yellow,
          };
       if (newLine) WriteLine (str);
       else Write (str);
