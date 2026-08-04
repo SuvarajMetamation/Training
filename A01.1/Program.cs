@@ -18,8 +18,7 @@ class Program {
    #region Methods --------------------------------------------------
    static void Main () {
       int low = MINVALUE, high = MAXVALUE;
-      Display ($"Think of a number between {MINVALUE} and {MAXVALUE}, " +
-         $"and I'll guess it!");
+      Display ($"Think of a number between {MINVALUE} and {MAXVALUE}, " + $"and I'll guess it!");
       while (low <= high) {
          int mid = low + (high - low) / 2;
          EResponse response = ReadResponse (mid);
@@ -30,8 +29,7 @@ class Program {
          HandleResponse (response, mid, ref low, ref high);
          Display ($"\nPossible range: {low} to {high}", EOutputType.Hint);
       }
-      Display ("\nYour responses are inconsistent. Please restart the game.",
-         EOutputType.Error);
+      Display ("\nYour responses are inconsistent. Please restart the game.", EOutputType.Error);
    }
 
    // Reads and validates the user's response.
@@ -55,14 +53,13 @@ class Program {
    }
 
    // Output decorators for more user understandable.
-   static void Display (string str, EOutputType outType = EOutputType.Info,
-      bool newLine = true) {
+   static void Display (string str, EOutputType outType = EOutputType.Info, bool newLine = true) {
       if (outType != EOutputType.Info)
          ForegroundColor = outType switch {
             EOutputType.Success => Green,
             EOutputType.Error => Red,
             EOutputType.Hint => Cyan,
-            _ => Yellow,
+            _ => Yellow, // prompt
          };
       if (newLine) WriteLine (str);
       else Write (str);
@@ -70,26 +67,26 @@ class Program {
    }
    #endregion
 
-   // Represents the user's response to the computer's guess.
    #region Enums ----------------------------------------------------
+   // Represents the user's response to the computer's guess.
    enum EResponse {
-      High, // The guessed number is too high.
-      Low, // The guessed number is too low.
-      Correct // The guessed number is correct.
+      High,    // The guessed number is too high.
+      Low,     // The guessed number is too low.
+      Correct  // The guessed number is correct.
    }
 
    // Represents the type of message displayed to the user.
    enum EOutputType {
       Success,  // Indicates a successful operation.
-      Error, // Indicates an error or invalid input.
-      Hint,  // Displays informational hints.
-      Prompt, // Prompts the user for input.
-      Info  // Displays general information.
+      Error,    // Indicates an error or invalid input.
+      Hint,     // Displays informational hints.
+      Prompt,   // Prompts the user for input.
+      Info      // Displays general information.
    }
    #endregion
 
    #region const ----------------------------------------------------
-   const int MINVALUE = 0; // Lowest possible number
+   const int MINVALUE = 0;   // Lowest possible number
    const int MAXVALUE = 100; // Highest possible number
    #endregion
 }
