@@ -46,7 +46,7 @@ class Program {
             case ConsoleKey.Y: return EResponse.Yes;
             case ConsoleKey.N: return EResponse.No;
          }
-         Display ("Invalid input. Press Y or N.", EOutputType.Error);
+         Display ("\nInvalid input. Press Y or N.", EOutputType.Error);
       }
    }
 
