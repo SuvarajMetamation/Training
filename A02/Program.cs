@@ -19,16 +19,21 @@ class Program {
    static void Main () {
       Display ($"Think of a number between {MINVALUE} and {MAXVALUE}.");
       Display ("Answer each question with (Y)es or (N)o.\n");
+      int guess = GuessNumber ();
+      Display ($"\nYour number is {guess}.", EOutputType.Success);
+   }
+
+   // Guesses the user's number using remainder-based binary questions.
+   static int GuessNumber () {
       int guess = 0;
       int knownRemainder = 0;
       for (int bit = 0; bit < MAXBITS; bit++) {
          int divisor = 1 << (bit + 1);
          int candidateRemainder = knownRemainder + (1 << bit);
          EResponse response = ReadResponse (divisor, candidateRemainder);
-         HandleResponse (response, bit, candidateRemainder,
-            ref guess, ref knownRemainder);
+         HandleResponse (response, bit, candidateRemainder, ref guess, ref knownRemainder);
       }
-      Display ($"\nYour number is {guess}.", EOutputType.Success);
+      return guess;
    }
 
    // Reads and validates the user's Yes/No response.
