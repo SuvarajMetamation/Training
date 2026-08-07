@@ -3,7 +3,7 @@
 // Copyright (c) Metamation India.
 // ------------------------------------------------------------------------
 // Program.cs
-// A02: 
+// A02: Number Guessing using LSB-to-MSB Binary Reconstruction.
 // The computer guesses the user's number by determining its binary digits
 // from Right-to-Left (LSB -> MSB) using remainder-based questions.
 // --------------------------------------------------------------------------------------------
