@@ -18,18 +18,16 @@ class Program {
    #region Methods --------------------------------------------------
    static void Main () {
       Display ($"Think of a number between {MINVALUE} and {MAXVALUE}.");
-      Display ("Answer each question with (Y)es or (N)o.\n");
-      int guess = GuessNumber ();
-      Display ($"\nYour number is {guess}.", EOutputType.Success);
+      Display ("Answer each question with (Y)es or (N)o.\n");   
+      Display ($"\nYour number is {GuessNumber()}.", EOutputType.Success);
    }
 
    // Guesses the user's number using remainder-based binary questions.
    static int GuessNumber () {
       int guess = MINVALUE;
       for (int bit = 0; bit < MAXBITS; bit++) {
-         int value = BITVALUE << bit, divisor = value << 1;
-         if (ReadResponse (divisor, guess + value))
-            guess |= value;
+         int value = BITVALUE << bit;
+         if (ReadResponse (value << 1, guess + value)) guess |= value;
       }
       return guess;
    }
@@ -82,7 +80,6 @@ class Program {
    const int MAXVALUE = 100;   // Highest possible number
    const int MAXBITS = 7;      // 2^7 = 128 > 100.
    const int BITVALUE = 1;     // Base value used for bit operations.
-
    #endregion
 }
 # endregion
