@@ -19,7 +19,7 @@ class Program {
    static void Main () {
       Display ($"Think of a number between {MINVALUE} and {MAXVALUE}.");
       Display ("Answer each question with (Y)es or (N)o.\n");   
-      Display ($"\nYour number is {GuessNumber()}.", EOutputType.Success);
+      Display ($"\nYour number is {GuessNumber ()}.", EOutputType.Success);
    }
 
    // Guesses the user's number using remainder-based binary questions.
@@ -64,7 +64,7 @@ class Program {
    }
    #endregion
 
-   #region Enums ----------------------------------------------------
+   #region Enum -----------------------------------------------------
    // Represents the type of output displayed.
    enum EOutputType {
       Success, // Successful operation.
