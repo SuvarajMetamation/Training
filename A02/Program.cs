@@ -25,12 +25,11 @@ class Program {
 
    // Guesses the user's number using remainder-based binary questions.
    static int GuessNumber () {
-      int guess = 0;
+      int guess = MINVALUE;
       for (int bit = 0; bit < MAXBITS; bit++) {
-         int divisor = DIVISORBASE << bit;
-         int candidateRemainder = guess + (BITVALUE << bit);
-         bool response = ReadResponse (divisor, candidateRemainder);
-         HandleResponse (response, bit, ref guess);
+         int value = BITVALUE << bit, divisor = value << 1;
+         if (ReadResponse (divisor, guess + value))
+            guess |= value;
       }
       return guess;
    }
@@ -44,15 +43,10 @@ class Program {
          switch (ReadKey ().Key) {
             case ConsoleKey.Y: return true;
             case ConsoleKey.N: return false;
+            default:
+               Display ("\nInvalid input. Press Y or N.", EOutputType.Error);
+               break;
          }
-         Display ("\nInvalid input. Press Y or N.", EOutputType.Error);
-      }
-   }
-
-   // Updates the guessed number and known remainder.
-   static void HandleResponse (bool response, int bit, ref int guess) {
-      if (response) {
-         guess |= BITVALUE << bit;
       }
    }
 
@@ -88,7 +82,7 @@ class Program {
    const int MAXVALUE = 100;   // Highest possible number
    const int MAXBITS = 7;      // 2^7 = 128 > 100.
    const int BITVALUE = 1;     // Base value used for bit operations.
-   const int DIVISORBASE = 2;  // Base value for powers of two.
+
    #endregion
 }
 # endregion
