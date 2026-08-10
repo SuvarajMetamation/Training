@@ -13,7 +13,7 @@ namespace A02;
 using static Console;
 using static System.ConsoleColor;
 
-# region class Program ----------------------------------------------------------------------------
+#region class Program -----------------------------------------------------------------------------
 class Program {
    #region Methods --------------------------------------------------
    static void Main () {
@@ -26,39 +26,34 @@ class Program {
    // Guesses the user's number using remainder-based binary questions.
    static int GuessNumber () {
       int guess = 0;
-      int knownRemainder = 0;
       for (int bit = 0; bit < MAXBITS; bit++) {
-         int divisor = 1 << (bit + 1);
-         int candidateRemainder = knownRemainder + (1 << bit);
-         EResponse response = ReadResponse (divisor, candidateRemainder);
-         HandleResponse (response, bit, candidateRemainder, ref guess, ref knownRemainder);
+         int divisor = DIVISORBASE << bit;
+         int candidateRemainder = guess + (BITVALUE << bit);
+         bool response = ReadResponse (divisor, candidateRemainder);
+         HandleResponse (response, bit, ref guess);
       }
       return guess;
    }
 
    // Reads and validates the user's Yes/No response.
-   static EResponse ReadResponse (int divisor, int remainder) {
+   static bool ReadResponse (int divisor, int remainder) {
       while (true) {
          Display (
-            $"When your number is divided by {divisor}, is the remainder {remainder}? (Y/N): ",
+            $"\nWhen your number is divided by {divisor}, is the remainder {remainder}? (Y/N): ",
             EOutputType.Prompt, false);
          switch (ReadKey ().Key) {
-            case ConsoleKey.Y: return EResponse.Yes;
-            case ConsoleKey.N: return EResponse.No;
+            case ConsoleKey.Y: return true;
+            case ConsoleKey.N: return false;
          }
          Display ("\nInvalid input. Press Y or N.", EOutputType.Error);
       }
    }
 
    // Updates the guessed number and known remainder.
-   static void HandleResponse (EResponse response, int bit, int candidateRemainder, ref int guess,
-      ref int knownRemainder) {
-      if (response == EResponse.Yes) {
-         guess |= 1 << bit;
-         knownRemainder = candidateRemainder;
+   static void HandleResponse (bool response, int bit, ref int guess) {
+      if (response) {
+         guess |= BITVALUE << bit;
       }
-      Display
-         ($"\nCurrent Guess : {guess}    Known Remainder : {knownRemainder}", EOutputType.Hint);
    }
 
    // Displays messages with colours.
@@ -78,12 +73,6 @@ class Program {
    #endregion
 
    #region Enums ----------------------------------------------------
-   // Represents the user's response.
-   enum EResponse {
-      Yes, // The statement is true.
-      No   // The statement is false.
-   }
-
    // Represents the type of output displayed.
    enum EOutputType {
       Success, // Successful operation.
@@ -98,7 +87,8 @@ class Program {
    const int MINVALUE = 0;     // Lowest possible number
    const int MAXVALUE = 100;   // Highest possible number
    const int MAXBITS = 7;      // 2^7 = 128 > 100.
+   const int BITVALUE = 1;     // Base value used for bit operations.
+   const int DIVISORBASE = 2;  // Base value for powers of two.
    #endregion
 }
 # endregion
-
