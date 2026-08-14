@@ -40,8 +40,7 @@ class Program {
    }
 
    // Determines whether the word contains all seven letters.
-   static bool IsPangram (string word, char[] letters) =>
-      letters.All (word.Contains);
+   static bool IsPangram (string word, char[] letters) => letters.All (word.Contains);
    #endregion
 }
 #endregion
