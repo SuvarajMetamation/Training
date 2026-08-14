@@ -3,7 +3,7 @@
 // Copyright (c) Metamation India.
 // ------------------------------------------------------------------------
 // Program.cs
-// A04: Special bee extension.
+// A04: Spelling bee extension.
 // --------------------------------------------------------------------------------------------
 
 namespace A04;
@@ -21,28 +21,24 @@ class Program {
             return;
          }
          WriteLine ("Letter | Occurrences\n--------------------");
-         int i = 0;
-         foreach (var (ch, occur) in BuildTable (chars)) {
-            if (i < 7) ForegroundColor = ConsoleColor.Green;
+         var sortedTable = BuildTable (chars).OrderByDescending (a => a.Value);
+         foreach (var (ch, occur) in sortedTable.Take (7)) {
+            ForegroundColor = ConsoleColor.Green;
             WriteLine ($"{ch,-6} | {occur}");
             ResetColor ();
-            i++;
          }
-      } catch { WriteLine ("Error reading file!"); }
+      } catch (IOException ex) { WriteLine ($"Error reading file: {ex.Message}"); }
    }
    #endregion
 
    #region Implementation -------------------------------------------
    static Dictionary<char, int> BuildTable (string chars) {
+      Dictionary<char, int> freqTable = [];
       foreach (var ch in chars.ToUpper ())
          if (ch is >= 'A' and <= 'Z')
-            if (!sFreqTable.TryAdd (ch, 1)) sFreqTable[ch]++;
-      return sFreqTable.OrderByDescending (a => a.Value).ToDictionary ();
+            freqTable[ch] = freqTable.GetValueOrDefault (ch) + 1;
+      return freqTable;
    }
-   #endregion
-
-   #region Private data ---------------------------------------------
-   static Dictionary<char, int> sFreqTable = [];
    #endregion
 }
 #endregion
