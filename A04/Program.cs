@@ -20,24 +20,13 @@ class Program {
             WriteLine ("No words found in the file.");
             return;
          }
+         Dictionary<char, int> freqTable = [];
+         foreach (var ch in chars)
+            if (char.IsLetter (ch)) freqTable[ch] = freqTable.GetValueOrDefault (ch) + 1;
          WriteLine ("Letter | Occurrences\n--------------------");
-         var sortedTable = BuildTable (chars).OrderByDescending (a => a.Value);
-         foreach (var (ch, occur) in sortedTable.Take (7)) {
-            ForegroundColor = ConsoleColor.Green;
-            WriteLine ($"{ch,-6} | {occur}");
-            ResetColor ();
-         }
+         var sortedTable = freqTable.OrderByDescending (a => a.Value).Take (7);
+         foreach (var (ch, occur) in sortedTable) WriteLine ($"{ch,-6} | {occur}");
       } catch (IOException ex) { WriteLine ($"Error reading file: {ex.Message}"); }
-   }
-   #endregion
-
-   #region Implementation -------------------------------------------
-   static Dictionary<char, int> BuildTable (string chars) {
-      Dictionary<char, int> freqTable = [];
-      foreach (var ch in chars.ToUpper ())
-         if (ch is >= 'A' and <= 'Z')
-            freqTable[ch] = freqTable.GetValueOrDefault (ch) + 1;
-      return freqTable;
    }
    #endregion
 }
