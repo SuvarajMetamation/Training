@@ -33,11 +33,8 @@ class Program {
    }
 
    // Calculates the score based on the word length and whether it contains all letters.
-   static int GetWordScore (string word, char[] letters) {
-      int score = word.Length == 4 ? 1 : word.Length;
-      if (IsPangram (word, letters)) score += 7;
-      return score;
-   }
+   static int GetWordScore (string word, char[] letters) =>
+      (word.Length == 4 ? 1 : word.Length) + (IsPangram (word, letters) ? 7 : 0);
 
    // Determines whether the word contains all seven letters.
    static bool IsPangram (string word, char[] letters) => letters.All (word.Contains);
