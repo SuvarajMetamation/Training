@@ -23,7 +23,7 @@ class Program {
             wordPoints[word] = GetWordScore (word, letters);
       var sortedWordPoints = wordPoints.OrderByDescending (kv => kv.Value).ThenBy (kv => kv.Key);
       foreach (var kvp in sortedWordPoints) {
-         bool isPangram = letters.All (kvp.Key.Contains);
+         bool isPangram = IsPangram (kvp.Key, letters);
          if (isPangram) ForegroundColor = ConsoleColor.Green;
          WriteLine ($"{kvp.Value,3}. {kvp.Key}");
          if (isPangram) ResetColor ();
@@ -35,9 +35,13 @@ class Program {
    // Calculates the score based on the word length and whether it contains all letters.
    static int GetWordScore (string word, char[] letters) {
       int score = word.Length == 4 ? 1 : word.Length;
-      if (letters.All (word.Contains)) score += 7;
+      if (IsPangram (word, letters)) score += 7;
       return score;
    }
+
+   // Determines whether the word contains all seven letters.
+   static bool IsPangram (string word, char[] letters) =>
+      letters.All (word.Contains);
    #endregion
 }
 #endregion
