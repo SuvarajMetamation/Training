@@ -13,24 +13,30 @@ using static Console;
 #region class Program -----------------------------------------------------------------------------
 class Program {
    #region Method ---------------------------------------------------
-   static void Main (string[] args) {
-      string[] wordslist = File.ReadAllLines (@"TData\words.txt");
+   static void Main () {
+      string[] wordslist = File.ReadAllLines (@"..\..\..\..\TData\words.txt");
       char[] letters = { 'U', 'X', 'A', 'L', 'T', 'N', 'E' };
-      Dictionary<string, int> wordPoints = new Dictionary<string, int> ();
-      foreach (string word in wordslist) {
-         if (word.Length >= 4 && word.Contains (letters[0]) && word.All (letters.Contains))
-            wordPoints.Add (word, letters.All
-               (l => word.Contains (l)) ? word.Length + 7 : word.Length == 4 ? 1 : word.Length);
-      }
-      var sortedWordPoints = wordPoints.OrderByDescending (kv => kv.Value).ToList ();
+      char requiredLetter = letters[0];
+      Dictionary<string, int> wordPoints = [];
+      foreach (string word in wordslist)
+         if (word.Length >= 4 && word.Contains (requiredLetter) && word.All (letters.Contains))
+            wordPoints[word] = GetWordScore (word, letters);
+      var sortedWordPoints = wordPoints.OrderByDescending (kv => kv.Value).ThenBy (kv => kv.Key);
       foreach (var kvp in sortedWordPoints) {
-         if (kvp.Value == 15)
-            ForegroundColor = ConsoleColor.Green;
+         bool isPangram = letters.All (kvp.Key.Contains);
+         if (isPangram) ForegroundColor = ConsoleColor.Green;
          WriteLine ($"{kvp.Value,3}. {kvp.Key}");
-         ResetColor ();
+         if (isPangram) ResetColor ();
       }
       WriteLine ("----");
       WriteLine ($"{wordPoints.Values.Sum ()} total");
+   }
+
+   // Calculates the score based on the word length and whether it contains all letters.
+   static int GetWordScore (string word, char[] letters) {
+      int score = word.Length == 4 ? 1 : word.Length;
+      if (letters.All (word.Contains)) score += 7;
+      return score;
    }
    #endregion
 }
