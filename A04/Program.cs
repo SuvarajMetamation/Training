@@ -15,7 +15,7 @@ class Program {
    #region Method ---------------------------------------------------
    static void Main () {
       try {
-         var chars = File.ReadAllText (@"TData\words.txt");
+         var chars = File.ReadAllText (@"..\..\..\..\TData\words.txt");
          if (chars.Length == 0) {
             WriteLine ("No words found in the file.");
             return;
