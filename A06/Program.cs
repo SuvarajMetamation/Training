@@ -104,7 +104,7 @@ class Program {
    static void WriteBoard (int[] solution) {
       if (solution.Length != 8)
          throw new ArgumentException ("A solution must contain exactly 8 queens.");
-      WriteLine ("┌───┬───┬───┬───┬───┬───┬───┬───┐");
+      WriteLine ($"┌{string.Join ("┬", Enumerable.Repeat ("───", 8))}┐");
       for (int row = 0; row < 8; row++) {
          Write ("|");
          for (int column = 0; column < 8; column++) {
@@ -112,9 +112,9 @@ class Program {
             Write ($" {queen} │");
          }
          WriteLine ();
-         if (row < 7) WriteLine ("├───┼───┼───┼───┼───┼───┼───┼───┤");
+         if (row < 7) WriteLine ($"├{string.Join ("┼", Enumerable.Repeat ("───", 8))}┤");
       }
-      WriteLine ("└───┴───┴───┴───┴───┴───┴───┴───┘");
+      WriteLine ($"└{string.Join ("┴", Enumerable.Repeat ("───", 8))}┘");
    }
    #endregion
 }
