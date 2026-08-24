@@ -13,6 +13,7 @@ using static Console;
 class Program {
    #region Methods --------------------------------------------------
    static void Main () {
+      OutputEncoding = System.Text.Encoding.UTF8;
       List<int[]> solutions = [];
       int[] board = new int[8];
       Solve (0, board, solutions);
@@ -104,17 +105,21 @@ class Program {
    static void WriteBoard (int[] solution) {
       if (solution.Length != 8)
          throw new ArgumentException ("A solution must contain exactly 8 queens.");
-      WriteLine ($"┌{string.Join ("┬", Enumerable.Repeat ("───", 8))}┐");
+      string top = $"\u250C{string.Join ("\u252C", Enumerable.Repeat ("───", 8))}\u2510";
+      string middle = $"\u251C{string.Join ("\u253C", Enumerable.Repeat ("───", 8))}\u2524";
+      string bottom = $"\u2514{string.Join ("\u2534", Enumerable.Repeat ("───", 8))}\u2518";
+      WriteLine (top);
       for (int row = 0; row < 8; row++) {
-         Write ("|");
+         Write ("\u2502");
          for (int column = 0; column < 8; column++) {
             var queen = solution[row] == column ? "\u265B" : " ";
-            Write ($" {queen} │");
+            Write ($" {queen} \u2502");
          }
          WriteLine ();
-         if (row < 7) WriteLine ($"├{string.Join ("┼", Enumerable.Repeat ("───", 8))}┤");
+         if (row < 7) WriteLine (middle);
       }
-      WriteLine ($"└{string.Join ("┴", Enumerable.Repeat ("───", 8))}┘");
+      WriteLine (bottom);
+
    }
    #endregion
 }
