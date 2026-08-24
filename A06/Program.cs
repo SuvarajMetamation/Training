@@ -86,7 +86,7 @@ class Program {
    // among all of its rotations and mirror images.
    static bool IsCanonical (int[] solution) {
       var original = Encode (solution);
-      var minimum = GetSymmetries (solution).Select (Encode).Min ();
+      var minimum = GetSymmetries (solution).Min (Encode);
       return original == minimum;
    }
 
