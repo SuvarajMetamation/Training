@@ -107,7 +107,7 @@ class Program {
          if (current == 0) WriteLine ("\n             -> Next    Esc Exit");
          else if (current == solutionList.Count - 1)
             WriteLine ("\n<- Previous           Esc Exit");
-         else WriteLine ("\n← Previous    → Next    Esc Exit");
+         else WriteLine ("\n<- Previous    -> Next    Esc Exit");
          var key = ReadKey (true).Key;
          if (key == ConsoleKey.RightArrow && current < solutionList.Count - 1) current++;
          else if (key == ConsoleKey.LeftArrow && current > 0) current--;
