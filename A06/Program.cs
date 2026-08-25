@@ -104,7 +104,10 @@ class Program {
          Clear ();
          WriteLine ($"Solution {current + 1} of {solutionList.Count}\n");
          WriteBoard (solutionList[current]);
-         WriteLine ("\n <- Previous    -> Next   Esc Exit");
+         if (current == 0) WriteLine ("\n             -> Next    Esc Exit");
+         else if (current == solutionList.Count - 1)
+            WriteLine ("\n<- Previous           Esc Exit");
+         else WriteLine ("\n← Previous    → Next    Esc Exit");
          var key = ReadKey (true).Key;
          if (key == ConsoleKey.RightArrow && current < solutionList.Count - 1) current++;
          else if (key == ConsoleKey.LeftArrow && current > 0) current--;
