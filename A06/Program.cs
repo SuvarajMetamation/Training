@@ -7,6 +7,7 @@
 // --------------------------------------------------------------------------------------------
 namespace A06;
 
+using System.Security;
 using static Console;
 
 #region class Program -----------------------------------------------------------------------------
@@ -105,10 +106,17 @@ class Program {
       // Prints each solution with its solution number and
       // displays the corresponding chess board.
       static void WriteSolutions (IEnumerable<int[]> solutions) {
-         int number = 1;
-         foreach (var solution in solutions) {
-            WriteLine ($"\nSolution {number++}");
-            WriteBoard (solution);
+         var solutionList = solutions.ToList ();
+         int current = 0;
+         while (true) {
+            Clear ();
+            WriteLine ($"Solution {current + 1} of {solutionList.Count}\n");
+            WriteBoard (solutionList[current]);
+            WriteLine ("\n <- Previous    -> Next   Esc Exit");
+            var key = ReadKey (true).Key;
+            if (key == ConsoleKey.RightArrow && current < solutionList.Count - 1) current++;
+            else if (key == ConsoleKey.LeftArrow && current > 0) current--;
+            else if (key == ConsoleKey.Escape) break;
          }
       }
 
