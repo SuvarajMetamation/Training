@@ -88,28 +88,26 @@ class Program {
    // Compares two boards lexicographically and determines
    // whether the first board comes before the second board.
    static int Compare (int[] first, int[] second) {
-      for (int index = 0; index < first.Length; index++) {
+      for (int index = 0; index < first.Length; index++)
          if (first[index] != second[index]) return first[index].CompareTo (second[index]);
-      }
       return 0;
    }
 
    // Prints each solution with its solution number and
    // displays the corresponding chess board.
-   static void WriteSolutions (IEnumerable<int[]> solutions) {
+   static void WriteSolutions (List<int[]> solutions) {
       ArgumentNullException.ThrowIfNull (solutions);
-      var solutionList = solutions.ToList ();
       int current = 0;
       while (true) {
          Clear ();
-         WriteLine ($"Solution {current + 1} of {solutionList.Count}\n");
-         WriteBoard (solutionList[current]);
-         if (current == 0) WriteLine ("\n             -> Next    Esc Exit");
-         else if (current == solutionList.Count - 1)
-            WriteLine ("\n<- Previous           Esc Exit");
-         else WriteLine ("\n<- Previous    -> Next    Esc Exit");
+         WriteLine ($"Solution {current + 1} of {solutions.Count}\n");
+         WriteBoard (solutions[current]);
+         if (current == 0) WriteLine ("\n             -> Next    Esc(Exit)");
+         else if (current == solutions.Count - 1)
+            WriteLine ("\n<- Previous           Esc(Exit)");
+         else WriteLine ("\n<- Previous    -> Next    Esc(Exit)");
          var key = ReadKey (true).Key;
-         if (key == ConsoleKey.RightArrow && current < solutionList.Count - 1) current++;
+         if (key == ConsoleKey.RightArrow && current < solutions.Count - 1) current++;
          else if (key == ConsoleKey.LeftArrow && current > 0) current--;
          else if (key == ConsoleKey.Escape) break;
       }
@@ -133,7 +131,6 @@ class Program {
          if (row < 7) WriteLine (middle);
       }
       WriteLine (bottom);
-
    }
    #endregion
 
