@@ -8,42 +8,70 @@
 
 namespace A07;
 
+using System.Globalization;
 using static System.Console;
 
 #region class Program -----------------------------------------------------------------------------
 class Program {
    #region Method ---------------------------------------------------
    static void Main () {
-      string[] testCases = {"123","-123","+123.45","-123.45","123e-45","+123.45e45",
-         "-123.45e45",".45e3","123.","4.e45","34.4E3","","-12-3e3","e24","123+",".e-",
-         ".e+","-+98","-123.-1","1..1","8-e", "1e-1"};
-      foreach (string input in testCases) 
-         if (DoubleParser.TryParse (input, out double result)) 
-            WriteLine ($"{input,-15} => {result}");
-         else WriteLine ($"{input,-15} => Invalid");
+      string[] testCases = { "10.54E23.4E3", "-1.546234E-4", "0", "0.0", "12345", "0.00000325",
+         "10.54E2", "1.5E2.5", "1.E3", "1.E+3", "12.54e3.", "12.", "12.e1", ".325", " +625 ",
+         "6.25e0", "6.0e0", "6.25e-1", "+6.25E1", "6.25", "10.625", "15a1", "1.5672", "+-12",
+         "12.-5", ".e1", "-0.325", " 12.456 " };
+      WriteLine ($"{"Input",-20} | {"Custom parser",-22} | {"Double.Parse",-22} | Result");
+      WriteLine (new string ('-', 78));
+      foreach (string input in testCases) {
+         bool customSucceeded = DoubleParser.TryParse (input, out double customValue);
+         bool frameworkSucceeded = TryParseWithDoubleParse (input, out double frameworkValue);
+         bool valuesMatch = customSucceeded == frameworkSucceeded &&
+            (!customSucceeded || customValue == frameworkValue);
+         WriteLine (
+                $"{input,-20} | " +
+                $"{FormatResult (customSucceeded, customValue),-22} | " +
+                $"{FormatResult (frameworkSucceeded, frameworkValue),-22} | " +
+                $"{(valuesMatch ? "PASS" : "FAIL")}");
+      }
    }
+
+   static bool TryParseWithDoubleParse (string input, out double result) {
+      try {
+         result = double.Parse (input, NumberStyles.Float, CultureInfo.InvariantCulture);
+         return true;
+      } catch (FormatException) {
+         result = 0;
+         return false;
+      } catch (OverflowException) {
+         result = 0;
+         return false;
+      }
+   }
+
+   static string FormatResult (bool succeeded, double value) =>
+      succeeded ? value.ToString ("R", CultureInfo.InvariantCulture) : "Invalid";
+
    #endregion
 }
 #endregion
 
 #region class DoubleParser ------------------------------------------------------------------------
 static class DoubleParser {
-   static string _input = "";
-   static int _position = 0;
+   static string sInput = "";
+   static int sPosition = 0;
 
    #region Methods --------------------------------------------------
    public static bool TryParse (string input, out double result) {
       result = 0;
       if (string.IsNullOrWhiteSpace (input)) return false;
-      _input = input.Trim ();
-      _position = 0;
+      sInput = input.Trim ();
+      sPosition = 0;
       try {
-         bool negative = ReadSign ();
-         double number = ReadNumber ();
+         bool isNegative = ReadSign ();
+         decimal number = ReadNumber ();
          int exponent = ReadExponent ();
          if (!EndOfInput) return false;
-         result = number * Math.Pow (0, exponent);
-         if (negative) result = -result;
+         result = ApplyExponent (number, exponent);
+         if (isNegative) result = -result;
          return true;
       } catch (ParseException) { return false; }
    }
@@ -60,30 +88,27 @@ static class DoubleParser {
       return false;
    }
 
-   static double ReadNumber () {
-      double number = 0;
-      bool hasIntegerDigits = ReadDigits (ref number);
+   static decimal ReadNumber () {
+      decimal number = 0;
+      var (hasIntegerDigits, hasFractionDigits) = (ReadDigits (ref number), false);
       if (Current == '.') {
          MoveNext ();
-         double fraction = 0.1;
-         bool hasFractionDigits = false;
-         while (IsDigit (Current)) {
+         decimal fraction = 0.1m;
+         while (char.IsDigit (Current)) {
             number += DigitValue (Current) * fraction;
-            fraction /= 10;
+            fraction /= 10m;
             hasFractionDigits = true;
             MoveNext ();
          }
-         if (!hasIntegerDigits && !hasFractionDigits) throw new ParseException ();
-         if (hasIntegerDigits && hasFractionDigits) throw new ParseException ();
       }
-      if (!hasIntegerDigits && Current != '.') throw new ParseException ();
+      if (!hasIntegerDigits && !hasFractionDigits) throw new ParseException ();
       return number;
    }
 
-   static bool ReadDigits (ref double number) {
+   static bool ReadDigits (ref decimal number) {
       bool found = false;
-      while (IsDigit (Current)) {
-         number = number * 10 + DigitValue (Current);
+      while (char.IsDigit (Current)) {
+         number = number * 10m + DigitValue (Current);
          found = true;
          MoveNext ();
       }
@@ -93,25 +118,38 @@ static class DoubleParser {
    static int ReadExponent () {
       if (Current != 'e' && Current != 'E') return 0;
       MoveNext ();
-      bool negative = false;
+      bool isNegative = false;
       if (Current == '+' || Current == '-') {
-         negative = Current == '-';
+         isNegative = Current == '-';
          MoveNext ();
       }
-      if (!IsDigit (Current)) throw new ParseException ();
+      if (!char.IsDigit (Current)) throw new ParseException ();
       int exponent = 0;
-      while (IsDigit (Current)) {
+      while (char.IsDigit (Current)) {
          exponent = exponent * 10 + DigitValue (Current);
          MoveNext ();
       }
-      return negative ? -exponent : exponent;
+      return isNegative ? -exponent : exponent;
    }
 
-   static char Current => EndOfInput ? '\0' : _input[_position];
-   static bool EndOfInput => _position >= _input.Length;
-   static void MoveNext () => _position++;
-   static bool IsDigit (char c) => c >= '0' && c <= '9';
+   static double ApplyExponent (decimal number, int exponent) {
+      if (exponent >= -28 && exponent <= 28) {
+         decimal factor = 1m;
+         if (exponent >= 0) for (int index = 0; index < exponent; index++) factor *= 10m;
+         else for (int index = 0; index < -exponent; index++) factor /= 10m;
+         return (double)(number * factor);
+      }
+      return (double)number * Math.Pow (10.0, exponent);
+   }
+
+   static void MoveNext () => sPosition++;
+
    static int DigitValue (char c) => c - '0';
+   #endregion
+
+   #region Private Properties ---------------------------------------
+   static char Current => EndOfInput ? '\0' : sInput[sPosition];
+   static bool EndOfInput => sPosition >= sInput.Length;
    #endregion
 }
 #endregion
