@@ -56,9 +56,6 @@ class Program {
 
 #region class DoubleParser ------------------------------------------------------------------------
 static class DoubleParser {
-   static string sInput = "";
-   static int sPosition = 0;
-
    #region Methods --------------------------------------------------
    public static bool TryParse (string input, out double result) {
       result = 0;
@@ -150,6 +147,8 @@ static class DoubleParser {
    #region Private Properties ---------------------------------------
    static char Current => EndOfInput ? '\0' : sInput[sPosition];
    static bool EndOfInput => sPosition >= sInput.Length;
+   static string sInput = "";
+   static int sPosition = 0;
    #endregion
 }
 #endregion
