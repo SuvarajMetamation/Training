@@ -22,28 +22,15 @@ class Program {
       WriteLine ($"{"Input",-20} | {"Custom parser",-22} | {"Double.Parse",-22} | Result");
       WriteLine (new string ('-', 78));
       foreach (string input in testCases) {
-         bool customSucceeded = DoubleParser.TryParse (input, out double customValue);
-         bool frameworkSucceeded = TryParseWithDoubleParse (input, out double frameworkValue);
-         bool valuesMatch = customSucceeded == frameworkSucceeded &&
-            (!customSucceeded || customValue == frameworkValue);
+         bool isCustomSuccess = DoubleParser.TryParse (input, out double customValue);
+         bool isFrameworkSuccess = double.TryParse (input, out double frameworkValue);
+         bool valuesMatch = isCustomSuccess == isFrameworkSuccess &&
+            (!isCustomSuccess || customValue == frameworkValue);
          WriteLine (
                 $"{input,-20} | " +
-                $"{FormatResult (customSucceeded, customValue),-22} | " +
-                $"{FormatResult (frameworkSucceeded, frameworkValue),-22} | " +
+                $"{FormatResult (isCustomSuccess, customValue),-22} | " +
+                $"{FormatResult (isFrameworkSuccess, frameworkValue),-22} | " +
                 $"{(valuesMatch ? "PASS" : "FAIL")}");
-      }
-   }
-
-   static bool TryParseWithDoubleParse (string input, out double result) {
-      try {
-         result = double.Parse (input, NumberStyles.Float, CultureInfo.InvariantCulture);
-         return true;
-      } catch (FormatException) {
-         result = 0;
-         return false;
-      } catch (OverflowException) {
-         result = 0;
-         return false;
       }
    }
 
@@ -63,7 +50,7 @@ static class DoubleParser {
       sInput = input.Trim ();
       sPosition = 0;
       try {
-         bool isNegative = ReadSign ();
+         bool isNegative = IsReadSign ();
          decimal number = ReadNumber ();
          int exponent = ReadExponent ();
          if (!EndOfInput) return false;
@@ -73,7 +60,7 @@ static class DoubleParser {
       } catch (ParseException) { return false; }
    }
 
-   static bool ReadSign () {
+   static bool IsReadSign () {
       if (Current == '+') {
          MoveNext ();
          return false;
@@ -87,22 +74,22 @@ static class DoubleParser {
 
    static decimal ReadNumber () {
       decimal number = 0;
-      var (hasIntegerDigits, hasFractionDigits) = (ReadDigits (ref number), false);
+      var (hasInt, hasFrac) = (IsReadDigits (ref number), false);
       if (Current == '.') {
          MoveNext ();
          decimal fraction = 0.1m;
          while (char.IsDigit (Current)) {
             number += DigitValue (Current) * fraction;
             fraction /= 10m;
-            hasFractionDigits = true;
+            hasFrac = true;
             MoveNext ();
          }
       }
-      if (!hasIntegerDigits && !hasFractionDigits) throw new ParseException ();
+      if (!hasInt && !hasFrac) throw new ParseException ();
       return number;
    }
 
-   static bool ReadDigits (ref decimal number) {
+   static bool IsReadDigits (ref decimal number) {
       bool found = false;
       while (char.IsDigit (Current)) {
          number = number * 10m + DigitValue (Current);
@@ -147,6 +134,9 @@ static class DoubleParser {
    #region Private Properties ---------------------------------------
    static char Current => EndOfInput ? '\0' : sInput[sPosition];
    static bool EndOfInput => sPosition >= sInput.Length;
+   #endregion
+
+   #region Static Fields --------------------------------------------
    static string sInput = "";
    static int sPosition = 0;
    #endregion
