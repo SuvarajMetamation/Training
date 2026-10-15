@@ -14,38 +14,8 @@ using static System.ConsoleColor;
 class Program {
    #region Methods --------------------------------------------------
    static void Main () {
-      var queue = new MyQueue<int> (16, 18, 20, 22);
-      var names = new MyQueue<string> ("John", "Jane", "Alice", "Bob");
-      WriteLine ("--------------------INT-----------------------------");
-      Assert (queue.Count == 4, "Count");
-      Assert (queue.IsFull, "IsFull");
-      queue.Enqueue (24);
-      Assert (queue.Size == 8, "Capacity After Resize");
-      Assert (queue.Count == 5, "Count +");
-      Assert (queue.Dequeue () == 10, "Dequeue");
-      Assert (queue.Count == 4, "Count after Dequeue");
-      for (int i = 0; i <= 3; i++) queue.Dequeue ();
-      Assert (queue.IsEmpty, "IsEmpty after Dequeue");
-      try {
-         Assert (queue.Dequeue () == 0, "Dequeue when empty -- Exception not thrown");
-      } catch (InvalidOperationException e) {
-         Assert (string.IsNullOrEmpty (e.Message), e.Message);
-      }
-      WriteLine ("--------------------STRING--------------------------");
-      Assert (names.Count == 4, "Count");
-      Assert (names.IsFull, "IsFull");
-      names.Enqueue ("Test");
-      Assert (names.Size == 8, "Capacity After Resize");
-      Assert (names.Count == 5, "Count +");
-      Assert (names.Dequeue () == "JOHN", "Dequeue");
-      Assert (names.Count == 4, "Count after Dequeue");
-      for (int i = 0; i <= 3; i++) names.Dequeue ();
-      Assert (names.IsEmpty, "IsEmpty after Dequeue");
-      try {
-         Assert (names.Dequeue () == null, "Dequeue when empty -- Exception not thrown");
-      } catch (InvalidOperationException e) {
-         Assert (string.IsNullOrEmpty (e.Message), e.Message);
-      }
+      TestQueue (new MyQueue<int> (16, 18, 20, 22), 24, 16, "INT");
+      TestQueue (new MyQueue<string> ("John", "Jane", "Alice", "Bob"), "Test", "", "STRING");
    }
 
    // Test the queue implementation
@@ -54,6 +24,26 @@ class Program {
       WriteLine ($"{testName,-32} --- {(condition ? "Passed" : "Failed")}");
       ResetColor ();
       if (!condition) return;
+   }
+
+   static void TestQueue<T> (MyQueue<T> queue, T newItem, T expectedFirst, string type) {
+      WriteLine ($"--------------------{type}--------------------------");
+      Assert (queue.Count == 4, "Count");
+      Assert (queue.IsFull, "IsFull");
+      queue.Enqueue (newItem);
+      Assert (queue.Size == 8, "Capacity After Resize");
+      Assert (queue.Count == 5, "Count After Enqueue");
+      //Assert (EqualityComparer<T>.Default.Equals (queue.Dequeue (), expectedFirst), "Dequeue");
+      Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
+      Assert (queue.Count == 4, "Count After Dequeue");
+      while (!queue.IsEmpty) queue.Dequeue ();
+      Assert (queue.IsEmpty, "IsEmpty");
+      try {
+         queue.Dequeue ();
+         Assert (false, "Dequeue when empty -- Exception not thrown");
+      } catch (InvalidOperationException e) {
+         Assert (e.Message == "Oops! There is no items in queue", "Empty Queue Exception");
+      }
    }
    #endregion
 }
