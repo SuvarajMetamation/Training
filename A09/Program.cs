@@ -15,6 +15,8 @@ class Program {
    #region Methods --------------------------------------------------
    static void Main () {
       var queue = new MyQueue<int> (16, 18, 20, 22);
+      var names = new MyQueue<string> ("John", "Jane", "Alice", "Bob");
+      WriteLine ("--------------------INT-----------------------------");
       Assert (queue.Count == 4, "Count");
       Assert (queue.IsFull, "IsFull");
       queue.Enqueue (24);
@@ -26,6 +28,21 @@ class Program {
       Assert (queue.IsEmpty, "IsEmpty after Dequeue");
       try {
          Assert (queue.Dequeue () == 0, "Dequeue when empty -- Exception not thrown");
+      } catch (InvalidOperationException e) {
+         Assert (string.IsNullOrEmpty (e.Message), e.Message);
+      }
+      WriteLine ("--------------------STRING--------------------------");
+      Assert (names.Count == 4, "Count");
+      Assert (names.IsFull, "IsFull");
+      names.Enqueue ("Test");
+      Assert (names.Size == 8, "Capacity After Resize");
+      Assert (names.Count == 5, "Count +");
+      Assert (names.Dequeue () == "JOHN", "Dequeue");
+      Assert (names.Count == 4, "Count after Dequeue");
+      for (int i = 0; i <= 3; i++) names.Dequeue ();
+      Assert (names.IsEmpty, "IsEmpty after Dequeue");
+      try {
+         Assert (names.Dequeue () == null, "Dequeue when empty -- Exception not thrown");
       } catch (InvalidOperationException e) {
          Assert (string.IsNullOrEmpty (e.Message), e.Message);
       }
