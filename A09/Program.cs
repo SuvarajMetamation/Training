@@ -14,8 +14,7 @@ using static System.ConsoleColor;
 class Program {
    #region Methods --------------------------------------------------
    static void Main () {
-      var queue = new MyQueue<int> ();
-      foreach (int num in new List<int> { 16, 18, 20, 22 }) queue.Enqueue (num);
+      var queue = new MyQueue<int> (16, 18, 20, 22);
       Assert (queue.Count == 4, "Count");
       Assert (queue.IsFull, "IsFull");
       queue.Enqueue (24);
@@ -45,6 +44,10 @@ class Program {
 
 #region class MyQueue -----------------------------------------------------------------------------
 class MyQueue<T> {
+   #region Constructors ---------------------------------------------
+   public MyQueue (params T[] datas) { foreach (T data in datas) Enqueue (data); }
+   #endregion
+
    #region Methods --------------------------------------------------
    public void Enqueue (T item) {
       if (IsFull) {
