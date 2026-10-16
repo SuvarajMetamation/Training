@@ -12,39 +12,8 @@ using static System.ConsoleColor;
 
 #region class Program -----------------------------------------------------------------------------
 class Program {
-   #region Methods --------------------------------------------------
-   static void Main () {
-      TestQueue (new MyQueue<int> (16, 18, 20, 22), 24, 16, "INT");
-      TestQueue (new MyQueue<string> ("John", "Jane", "Alice", "Bob"), "Test", "", "STRING");
-   }
-
-   // Test the queue implementation
-   static void Assert (bool condition, string testName) {
-      ForegroundColor = condition ? DarkGreen : Red;
-      WriteLine ($"{testName,-32} --- {(condition ? "Passed" : "Failed")}");
-      ResetColor ();
-      if (!condition) return;
-   }
-
-   static void TestQueue<T> (MyQueue<T> queue, T newItem, T expectedFirst, string type) {
-      WriteLine ($"--------------------{type}--------------------------");
-      Assert (queue.Count == 4, "Count");
-      Assert (queue.IsFull, "IsFull");
-      queue.Enqueue (newItem);
-      Assert (queue.Size == 8, "Capacity After Resize");
-      Assert (queue.Count == 5, "Count After Enqueue");
-      //Assert (EqualityComparer<T>.Default.Equals (queue.Dequeue (), expectedFirst), "Dequeue");
-      Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
-      Assert (queue.Count == 4, "Count After Dequeue");
-      while (!queue.IsEmpty) queue.Dequeue ();
-      Assert (queue.IsEmpty, "IsEmpty");
-      try {
-         queue.Dequeue ();
-         Assert (false, "Dequeue when empty -- Exception not thrown");
-      } catch (InvalidOperationException e) {
-         Assert (e.Message == "Oops! There is no items in queue", "Empty Queue Exception");
-      }
-   }
+   #region Method ---------------------------------------------------
+   static void Main () => MyQueueTests.Run ();
    #endregion
 }
 #endregion
@@ -90,6 +59,46 @@ class MyQueue<T> {
    #region Private data ---------------------------------------------
    int mStart, mEnd, mCount;
    T[] mArray = new T[4];
+   #endregion
+}
+#endregion
+
+#region class MyQueueTests ------------------------------------------------------------------------
+class MyQueueTests {
+   #region Methods --------------------------------------------------
+   public static void Run () {
+      TestQueue (new MyQueue<int> (16, 18, 20, 22), 24, 18, "INT");
+      TestQueue (new MyQueue<string> ("John", "Jane", "Alice", "Bob"), "Test", "John", "STRING");
+      TestQueue (new MyQueue<double> (10.5, 20.5, 30.5, 40.5), 50.5, 10.5, "DOUBLE");
+   }
+
+   public static void TestQueue<T> (MyQueue<T> queue, T newItem, T expectedFirst, string type) {
+      WriteLine ($"--------------------{type}--------------------------");
+      Assert (queue.Count == 4, "Count");
+      Assert (queue.IsFull, "IsFull");
+      queue.Enqueue (newItem);
+      Assert (queue.Size == 8, "Capacity After Resize");
+      Assert (queue.Count == 5, "Count After Enqueue");
+      //Assert (EqualityComparer<T>.Default.Equals (queue.Dequeue (), expectedFirst), "Dequeue");
+      Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
+      Assert (queue.Count == 4, "Count After Dequeue");
+      while (!queue.IsEmpty) queue.Dequeue ();
+      Assert (queue.IsEmpty, "IsEmpty after Dequeue");
+      try {
+         queue.Dequeue ();
+         Assert (false, "Dequeue when empty -- Exception not thrown");
+      } catch (InvalidOperationException e) {
+         Assert (e.Message == "Oops! There is no items in queue", "Empty Queue Exception");
+      }
+   }
+
+   // Test the queue implementation
+   static void Assert (bool condition, string testName) {
+      ForegroundColor = condition ? DarkGreen : Red;
+      WriteLine ($"{testName,-32} --- {(condition ? "Passed" : "Failed")}");
+      ResetColor ();
+      if (!condition) return;
+   }
    #endregion
 }
 #endregion
