@@ -21,7 +21,7 @@ class Program {
 #region class MyQueue -----------------------------------------------------------------------------
 class MyQueue<T> {
    #region Constructors ---------------------------------------------
-   public MyQueue (params T[] datas) { foreach (T data in datas) Enqueue (data); }
+   public MyQueue (params T[] data) { foreach (T d in data) Enqueue (d); }
    #endregion
 
    #region Methods --------------------------------------------------
@@ -53,11 +53,11 @@ class MyQueue<T> {
    public bool IsEmpty => mCount == 0;
    public bool IsFull => mCount == Size;
    public int Size => mArray.Length;
-   public int Count => mCount;
+   public int mCount;
    #endregion
 
    #region Private data ---------------------------------------------
-   int mStart, mEnd, mCount;
+   int mStart, mEnd;
    T[] mArray = new T[4];
    #endregion
 }
@@ -74,14 +74,14 @@ class MyQueueTests {
 
    public static void TestQueue<T> (MyQueue<T> queue, T newItem, T expectedFirst, string type) {
       WriteLine ($"--------------------{type}--------------------------");
-      Assert (queue.Count == 4, "Count");
+      Assert (queue.mCount == 4, "Count");
       Assert (queue.IsFull, "IsFull");
       queue.Enqueue (newItem);
       Assert (queue.Size == 8, "Capacity After Resize");
-      Assert (queue.Count == 5, "Count After Enqueue");
+      Assert (queue.mCount == 5, "Count After Enqueue");
       //Assert (EqualityComparer<T>.Default.Equals (queue.Dequeue (), expectedFirst), "Dequeue");
       Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
-      Assert (queue.Count == 4, "Count After Dequeue");
+      Assert (queue.mCount == 4, "Count After Dequeue");
       while (!queue.IsEmpty) queue.Dequeue ();
       Assert (queue.IsEmpty, "IsEmpty after Dequeue");
       try {
