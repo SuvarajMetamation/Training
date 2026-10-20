@@ -34,14 +34,20 @@ class MyDQueue<T> {
    #endregion
 
    #region Methods --------------------------------------------------
+   // Resize the array size.
    void EnsureCapacity () {
       if (!IsFull) return;
-      T[] newArray = new T[Size * 2];
-      for (int i = 0; i < mCount; i++) newArray[i] = mArray[(mStart + i) % Size];
-      mArray = newArray;
+      T[] temp = new T[Size * 2];
+      for (int i = 0; i < mCount; i++) temp[i] = mArray[(mStart + i) % Size];
+      mArray = temp;
       mStart = 0;
    }
 
+   /// <summary>
+   /// Adds an item to the specified side of the queue.
+   /// </summary>
+   /// <param name="item"></param>
+   /// <param name="side"></param>
    public void Enqueue (T item, QueueSide side) {
       EnsureCapacity ();
       if (side == HEAD) mStart = (mStart - 1 + Size) % Size;
@@ -50,6 +56,14 @@ class MyDQueue<T> {
       mCount++;
    }
 
+   /// <summary>
+   /// Removes and returns an item from the specified side of the queue.
+   /// </summary>
+   /// <param name="side">The side from which the item is removed (HEAD or TAIL).</param>
+   /// <returns>The item removed from the queue.</returns>
+   /// <exception cref="InvalidOperationException">
+   /// Thrown when the queue is empty.
+   /// </exception>
    public T Dequeue (QueueSide side) {
       if (mCount == 0) throw new InvalidOperationException ("Queue is empty");
       int index = side == HEAD ? mStart : (mStart + mCount - 1) % Size;
@@ -62,14 +76,19 @@ class MyDQueue<T> {
    #endregion
 
    #region Properties -----------------------------------------------
+   /// <summary>
+   /// Gets the current capacity of the queue.
+   /// </summary>
    public int Size => mArray.Length;
+   /// <summary>
+   /// Gets a value indicating whether the queue is full.
+   /// </summary>
    public bool IsFull => mCount == Size;
-   public int mCount;
    #endregion
 
    #region Private Data ---------------------------------------------
    T[] mArray;
-   int mStart;
+   int mStart, mCount;
    #endregion
 }
 #endregion MyDQueue<T>
