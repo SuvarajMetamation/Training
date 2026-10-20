@@ -8,7 +8,7 @@
 
 namespace A09._1;
 
-using static DequeueSide;
+using static QueueSide;
 using static System.Console;
 
 #region class Program -----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class MyDQueue<T> {
       mStart = 0;
    }
 
-   public void Enqueue (T item, DequeueSide side) {
+   public void Enqueue (T item, QueueSide side) {
       EnsureCapacity ();
       if (side == HEAD) mStart = (mStart - 1 + Size) % Size;
       int index = (mStart + (side == HEAD ? 0 : mCount)) % Size;
@@ -50,7 +50,7 @@ class MyDQueue<T> {
       mCount++;
    }
 
-   public T Dequeue (DequeueSide side) {
+   public T Dequeue (QueueSide side) {
       if (mCount == 0) throw new InvalidOperationException ("Queue is empty");
       int index = side == HEAD ? mStart : (mStart + mCount - 1) % Size;
       T item = mArray[index];
@@ -75,5 +75,5 @@ class MyDQueue<T> {
 #endregion MyDQueue<T>
 
 #region enum -----------------------------------------------------
-enum DequeueSide { HEAD, TAIL }
+enum QueueSide { HEAD, TAIL }
 #endregion
