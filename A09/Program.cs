@@ -25,58 +25,42 @@ class MyQueue<T> {
    #endregion
 
    #region Methods --------------------------------------------------
-   /// <summary>
-   /// Adds an item to the tail of the queue, increasing the array capacity if full.
+   /// <summary>Adds an item to the tail of the queue,increasing the array capacity if full.
    /// </summary>
-   /// <param name="item">The item to enqueue.</param>
    public void Enqueue (T item) {
       if (IsFull) {
          int size = Size;
          var temp = new T[size * 2];
-         for (int i = 0; i < mCount; i++) temp[i] = mArray[(mStart + i) % size];
+         for (int i = 0; i < Count; i++) temp[i] = mArray[(mStart + i) % size];
          mArray = temp;
          mStart = 0;
-         mEnd = mCount;
+         mEnd = Count;
       }
       mArray[mEnd] = item;
       mEnd = (mEnd + 1) % Size;
-      mCount++;
+      Count++;
    }
 
-   /// <summary>
-   /// Removes and returns the item at the head of the queue.
-   /// </summary>
-   /// <returns>The item removed from the queue.</returns>
-   /// <exception cref="InvalidOperationException">
-   /// Thrown when the queue is empty.
-   /// </exception>
+   /// <summary>Removes and returns the item at the head of the queue.</summary>
    public T Dequeue () {
       if (IsEmpty) throw new InvalidOperationException ("Oops! There is no items in queue");
       T item = mArray[mStart];
       mArray[mStart] = default!;
       mStart = ++mStart % Size;
-      mCount--;
+      Count--;
       return item;
    }
    #endregion
 
-   #region Properties -----------------------------------------------
-   /// <summary>
-   /// Gets a value indicating whether the queue contains no items.
-   /// </summary>
-   public bool IsEmpty => mCount == 0;
-   /// <summary>
-   /// Gets a value indicating whether the queue has reached its capacity.
-   /// </summary>
-   public bool IsFull => mCount == Size;
-   /// <summary>
-   /// Gets the total number of items the queue can hold before resizing.
-   /// </summary>
+   #region Properties ----------------------------------------------- 
+   /// <summary>Gets a value indicating whether the queue contains no items.</summary>
+   public bool IsEmpty => Count == 0;
+   /// <summary>Gets a value indicating whether the queue has reached its capacity.</summary>
+   public bool IsFull => Count == Size;
+   /// <summary>Gets the total number of items the queue can hold before resizing.</summary>
    public int Size => mArray.Length;
-   /// <summary>
-   /// Gets or sets the current number of items in the queue.
-   /// </summary>
-   public int mCount;
+   /// <summary>Gets or sets the current number of items in the queue.</summary>
+   public int Count;
    #endregion
 
    #region Private data ---------------------------------------------
@@ -97,13 +81,13 @@ class MyQueueTests {
 
    public static void TestQueue<T> (MyQueue<T> queue, T newItem, T expectedFirst, string type) {
       WriteLine ($"--------------------{type}--------------------------");
-      Assert (queue.mCount == 4, "Count");
+      Assert (queue.Count == 4, "Count");
       Assert (queue.IsFull, "IsFull");
       queue.Enqueue (newItem);
       Assert (queue.Size == 8, "Capacity After Resize");
-      Assert (queue.mCount == 5, "Count After Enqueue");
+      Assert (queue.Count == 5, "Count After Enqueue");
       Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
-      Assert (queue.mCount == 4, "Count After Dequeue");
+      Assert (queue.Count == 4, "Count After Dequeue");
       while (!queue.IsEmpty) queue.Dequeue ();
       Assert (queue.IsEmpty, "IsEmpty after Dequeue");
       try {
