@@ -30,7 +30,7 @@ class Program {
 #region class MyDQueue<T> -------------------------------------------------------------------------
 class MyDQueue<T> {
    #region Constructor ----------------------------------------------
-   public MyDQueue (int size = 4) => mArray = new T[Math.Max (4, size)];
+   public MyDQueue () => mArray = new T[4];
    #endregion
 
    #region Methods --------------------------------------------------
@@ -43,11 +43,7 @@ class MyDQueue<T> {
       mStart = 0;
    }
 
-   /// <summary>
-   /// Adds an item to the specified side of the queue.
-   /// </summary>
-   /// <param name="item"></param>
-   /// <param name="side"></param>
+   /// <summary>Adds an item to the specified side of the queue.</summary>
    public void Enqueue (T item, QueueSide side) {
       EnsureCapacity ();
       if (side == HEAD) mStart = (mStart - 1 + Size) % Size;
@@ -56,14 +52,7 @@ class MyDQueue<T> {
       mCount++;
    }
 
-   /// <summary>
-   /// Removes and returns an item from the specified side of the queue.
-   /// </summary>
-   /// <param name="side">The side from which the item is removed (HEAD or TAIL).</param>
-   /// <returns>The item removed from the queue.</returns>
-   /// <exception cref="InvalidOperationException">
-   /// Thrown when the queue is empty.
-   /// </exception>
+   /// <summary> Removes and returns an item from the specified side of the queue.</summary>
    public T Dequeue (QueueSide side) {
       if (mCount == 0) throw new InvalidOperationException ("Queue is empty");
       int index = side == HEAD ? mStart : (mStart + mCount - 1) % Size;
@@ -76,13 +65,9 @@ class MyDQueue<T> {
    #endregion
 
    #region Properties -----------------------------------------------
-   /// <summary>
-   /// Gets the current capacity of the queue.
-   /// </summary>
+   /// <summary>Gets the current capacity of the queue.</summary>
    public int Size => mArray.Length;
-   /// <summary>
-   /// Gets a value indicating whether the queue is full.
-   /// </summary>
+   /// <summary>Gets a value indicating whether the queue is full.</summary>
    public bool IsFull => mCount == Size;
    #endregion
 
