@@ -1,9 +1,9 @@
 ﻿// --------------------------------------------------------------------------------------------
-// Training ~ A training program for new joinees at Metamation, Batch - July 2026.
+// Training ~ A training program for new joinee at Trumpf Metamation, Batch - July 2026.
 // Copyright (c) Metamation India.
 // ------------------------------------------------------------------------
 // Program.cs
-// A09: Implementation of Generic type of Queue using array.
+// A09: Implementation of generic type of Queue using array.
 // --------------------------------------------------------------------------------------------
 namespace A09;
 
@@ -79,7 +79,6 @@ class MyQueueTests {
       queue.Enqueue (newItem);
       Assert (queue.Size == 8, "Capacity After Resize");
       Assert (queue.mCount == 5, "Count After Enqueue");
-      //Assert (EqualityComparer<T>.Default.Equals (queue.Dequeue (), expectedFirst), "Dequeue");
       Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
       Assert (queue.mCount == 4, "Count After Dequeue");
       while (!queue.IsEmpty) queue.Dequeue ();
