@@ -8,20 +8,21 @@
 
 namespace A09._1;
 
+using static DequeueSide;
 using static System.Console;
 
 #region class Program -----------------------------------------------------------------------------
 class Program {
    static void Main () {
       MyDQueue<int> queue = new ();
-      queue.EnqueueTail (10);
-      queue.EnqueueTail (20);
-      queue.EnqueueHead (5);
-      queue.EnqueueHead (1);
-      WriteLine (queue.DequeueHead ()); // 1
-      WriteLine (queue.DequeueTail ()); // 20
-      WriteLine (queue.DequeueHead ()); // 5
-      WriteLine (queue.DequeueTail ()); //10
+      queue.Enqueue (10, TAIL);
+      queue.Enqueue (20, TAIL);
+      queue.Enqueue (5, HEAD);
+      queue.Enqueue (1, HEAD);
+      WriteLine (queue.Dequeue (HEAD)); // 1
+      WriteLine (queue.Dequeue (TAIL)); // 20
+      WriteLine (queue.Dequeue (HEAD)); // 5
+      WriteLine (queue.Dequeue (TAIL)); //10
    }
 }
 #endregion Program
@@ -41,43 +42,28 @@ class MyDQueue<T> {
       mStart = 0;
    }
 
-   public void EnqueueHead (T item) {
+   public void Enqueue (T item, DequeueSide side) {
       EnsureCapacity ();
-      mStart = (mStart - 1 + Size) % Size;
-      mArray[mStart] = item;
+      if (side == HEAD) mStart = (mStart - 1 + Size) % Size;
+      int index = (mStart + (side == HEAD ? 0 : mCount)) % Size;
+      mArray[index] = item;
       mCount++;
    }
 
-   public void EnqueueTail (T item) {
-      EnsureCapacity ();
-      mArray[(mStart + mCount) % Size] = item;
-      mCount++;
-   }
-
-   public T DequeueHead () {
-      if (IsEmpty) throw new InvalidOperationException ("Dequeue is Empty");
-      T item = mArray[mStart];
-      mArray[mStart] = default!;
-      mStart = (mStart + 1) % Size;
-      mCount--;
-      return item;
-   }
-
-   public T DequeueTail () {
-      if (IsEmpty) throw new InvalidOperationException ("Dequeue is Empty");
-      int index = (mStart + mCount - 1) % Size;
+   public T Dequeue (DequeueSide side) {
+      if (mCount == 0) throw new InvalidOperationException ("Queue is empty");
+      int index = side == HEAD ? mStart : (mStart + mCount - 1) % Size;
       T item = mArray[index];
       mArray[index] = default!;
       mCount--;
+      if (side == HEAD) mStart = (mStart + 1) % Size;
       return item;
    }
    #endregion
 
    #region Properties -----------------------------------------------
    public int Size => mArray.Length;
-   public bool IsEmpty => mCount == 0;
    public bool IsFull => mCount == Size;
-
    public int mCount;
    #endregion
 
@@ -87,3 +73,7 @@ class MyDQueue<T> {
    #endregion
 }
 #endregion MyDQueue<T>
+
+#region enum -----------------------------------------------------
+enum DequeueSide { HEAD, TAIL }
+#endregion
