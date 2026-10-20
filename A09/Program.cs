@@ -25,6 +25,10 @@ class MyQueue<T> {
    #endregion
 
    #region Methods --------------------------------------------------
+   /// <summary>
+   /// Adds an item to the tail of the queue, increasing the array capacity if full.
+   /// </summary>
+   /// <param name="item">The item to enqueue.</param>
    public void Enqueue (T item) {
       if (IsFull) {
          int size = Size;
@@ -39,6 +43,13 @@ class MyQueue<T> {
       mCount++;
    }
 
+   /// <summary>
+   /// Removes and returns the item at the head of the queue.
+   /// </summary>
+   /// <returns>The item removed from the queue.</returns>
+   /// <exception cref="InvalidOperationException">
+   /// Thrown when the queue is empty.
+   /// </exception>
    public T Dequeue () {
       if (IsEmpty) throw new InvalidOperationException ("Oops! There is no items in queue");
       T item = mArray[mStart];
@@ -50,9 +61,21 @@ class MyQueue<T> {
    #endregion
 
    #region Properties -----------------------------------------------
+   /// <summary>
+   /// Gets a value indicating whether the queue contains no items.
+   /// </summary>
    public bool IsEmpty => mCount == 0;
+   /// <summary>
+   /// Gets a value indicating whether the queue has reached its capacity.
+   /// </summary>
    public bool IsFull => mCount == Size;
+   /// <summary>
+   /// Gets the total number of items the queue can hold before resizing.
+   /// </summary>
    public int Size => mArray.Length;
+   /// <summary>
+   /// Gets or sets the current number of items in the queue.
+   /// </summary>
    public int mCount;
    #endregion
 
