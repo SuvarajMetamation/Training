@@ -1,9 +1,9 @@
 ﻿// ------------------------------------------------------------------------------------------------
-// Training ~ A training program for new joinees at Metamation, Batch - July 2026.
+// Training ~ A training program for new joinee at Trumpf Metamation, Batch - July 2026.
 // Copyright (c) Metamation India.
 // ------------------------------------------------------------------
 // Program.cs
-// A09.1: Implementation of Generic type of Double Ended Queue using array.
+// A09.1: Implementation of generic type of double ended queue using array.
 // ------------------------------------------------------------------------------------------------
 
 namespace A09._1;
