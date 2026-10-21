@@ -17,10 +17,9 @@ class Program {
    static void Main () {
       string input = @"C:\PROGRAMS\DATA\README.TXT";
       if (FileNameParser.TryParse (input, out var parts)) {
-         WriteLine ($"Drive     : {parts.Drive}");
-         WriteLine ($"Path      : {parts.Path}");
-         WriteLine ($"File Name : {parts.FileName}");
-         WriteLine ($"Extension : {parts.Extension}");
+         foreach (var (label, value) in new[] {("Drive",parts.Drive),("Path",parts.Path),
+           ("FileName",parts.FileName),("Extension",parts.Extension) })
+            WriteLine ($"{label,-10}: {value}");
       } else WriteLine ("Invalid file name");
    }
    #endregion
