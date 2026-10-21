@@ -21,7 +21,7 @@ class Program {
 #region class MyQueue -----------------------------------------------------------------------------
 class MyQueue<T> {
    #region Constructor ----------------------------------------------
-   public MyQueue (params T[] data) { foreach (T d in data) Enqueue (d); }
+   public MyQueue (params T[] data) { foreach (T item in data) Enqueue (item); }
    #endregion
 
    #region Methods --------------------------------------------------
@@ -31,9 +31,7 @@ class MyQueue<T> {
          int size = Size;
          var temp = new T[size * 2];
          for (int i = 0; i < Count; i++) temp[i] = mData[(mStart + i) % size];
-         mData = temp;
-         mStart = 0;
-         mEnd = Count;
+         (mData, mStart, mEnd) = (temp, 0, Count);
       }
       mData[mEnd] = item;
       mEnd = (mEnd + 1) % Size;
@@ -58,7 +56,7 @@ class MyQueue<T> {
    public bool IsFull => Count == Size;
    /// <summary>Gets the total number of items the queue can hold before resizing</summary>
    public int Size => mData.Length;
-   /// <summary>Gets or sets the current number of items in the queue</summary>
+   /// <summary>Stores the current number of items in the queue</summary>
    public int Count;
    #endregion
 
