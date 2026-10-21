@@ -20,23 +20,22 @@ class Program {
 
 #region class MyQueue -----------------------------------------------------------------------------
 class MyQueue<T> {
-   #region Constructors ---------------------------------------------
+   #region Constructor ----------------------------------------------
    public MyQueue (params T[] data) { foreach (T d in data) Enqueue (d); }
    #endregion
 
    #region Methods --------------------------------------------------
-   /// <summary>Adds an item to the tail of the queue,increasing the array capacity if full.
-   /// </summary>
+   /// <summary>Adds an item to the queue,increasing the array capacity if full</summary>
    public void Enqueue (T item) {
       if (IsFull) {
          int size = Size;
          var temp = new T[size * 2];
-         for (int i = 0; i < Count; i++) temp[i] = mArray[(mStart + i) % size];
-         mArray = temp;
+         for (int i = 0; i < Count; i++) temp[i] = mData[(mStart + i) % size];
+         mData = temp;
          mStart = 0;
          mEnd = Count;
       }
-      mArray[mEnd] = item;
+      mData[mEnd] = item;
       mEnd = (mEnd + 1) % Size;
       Count++;
    }
@@ -44,8 +43,8 @@ class MyQueue<T> {
    /// <summary>Removes and returns the item at the head of the queue.</summary>
    public T Dequeue () {
       if (IsEmpty) throw new InvalidOperationException ("Oops! There is no items in queue");
-      T item = mArray[mStart];
-      mArray[mStart] = default!;
+      T item = mData[mStart];
+      mData[mStart] = default!;
       mStart = ++mStart % Size;
       Count--;
       return item;
@@ -58,14 +57,14 @@ class MyQueue<T> {
    /// <summary>Gets a value indicating whether the queue has reached its capacity.</summary>
    public bool IsFull => Count == Size;
    /// <summary>Gets the total number of items the queue can hold before resizing.</summary>
-   public int Size => mArray.Length;
+   public int Size => mData.Length;
    /// <summary>Gets or sets the current number of items in the queue.</summary>
    public int Count;
    #endregion
 
    #region Private data ---------------------------------------------
    int mStart, mEnd;
-   T[] mArray = new T[4];
+   T[] mData = new T[4];
    #endregion
 }
 #endregion
