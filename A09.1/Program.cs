@@ -46,7 +46,7 @@ class MyDQueue<T> {
       mCount++;
    }
 
-   /// <summary> Removes and returns an item from the specified side of the queue</summary>
+   /// <summary>Removes and returns an item from the specified side of the queue</summary>
    public T Dequeue (EQueueSide side) {
       if (mCount == 0) throw new InvalidOperationException ("Queue is empty");
       int index;
