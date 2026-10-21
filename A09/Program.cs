@@ -69,21 +69,25 @@ class MyQueue<T> {
 
 #region class MyQueueTests ------------------------------------------------------------------------
 class MyQueueTests {
-   #region Methods --------------------------------------------------
+   #region Method ---------------------------------------------------
+   /// <summary>Runs queue tests for integer, string, and double data types</summary>
    public static void Run () {
       TestQueue (new MyQueue<int> (16, 18, 20, 22), 24, 18, "INT");
       TestQueue (new MyQueue<string> ("John", "Jane", "Alice", "Bob"), "Test", "John", "STRING");
       TestQueue (new MyQueue<double> (10.5, 20.5, 30.5, 40.5), 50.5, 10.5, "DOUBLE");
    }
+   #endregion
 
-   public static void TestQueue<T> (MyQueue<T> queue, T newItem, T expectedFirst, string type) {
-      WriteLine ($"--------------------{type}--------------------------");
+   #region Implementations ------------------------------------------
+   // Tests queue operations, resizing, FIFO order, and empty-queue exceptions
+   static void TestQueue<T> (MyQueue<T> queue, T push, T popFirst, string dataType) {
+      WriteLine ($"--------------------{dataType}--------------------------");
       Assert (queue.Count == 4, "Count");
       Assert (queue.IsFull, "IsFull");
-      queue.Enqueue (newItem);
+      queue.Enqueue (push);
       Assert (queue.Size == 8, "Capacity After Resize");
       Assert (queue.Count == 5, "Count After Enqueue");
-      Assert (queue.Dequeue ().Equals (expectedFirst), "Dequeue");
+      Assert (queue.Dequeue ().Equals (popFirst), "Dequeue");
       Assert (queue.Count == 4, "Count After Dequeue");
       while (!queue.IsEmpty) queue.Dequeue ();
       Assert (queue.IsEmpty, "IsEmpty after Dequeue");
@@ -95,7 +99,7 @@ class MyQueueTests {
       }
    }
 
-   // Test the queue implementation
+   // Displays the test result and its status using console colors
    static void Assert (bool condition, string testName) {
       ForegroundColor = condition ? DarkGreen : Red;
       WriteLine ($"{testName,-32} --- {(condition ? "Passed" : "Failed")}");
