@@ -9,7 +9,7 @@ namespace A10;
 
 using System.Text;
 using static System.Console;
-using static ParseState;
+using static EParseState;
 
 #region class Program -----------------------------------------------------------------------------
 class Program {
@@ -34,7 +34,7 @@ class FileNameParser {
       string Extension) result) {
       result = ("", "", "", "");
       if (string.IsNullOrEmpty (input)) return false;
-      ParseState state = DRIVE;
+      EParseState state = DRIVE;
       (StringBuilder component, StringBuilder path) = (new (), new ());
       var (drive, fileName, extension) = ("", "", "");
       foreach (char ch in input) {
@@ -84,16 +84,16 @@ class FileNameParser {
       if (state != EXTENSION) return false;
       result = (drive, path.ToString (), fileName, extension);
       return true;
-   }
-   #endregion
 
-   #region Private Method -------------------------------------------
-   // Checks the whether the character is valid or not
-   static bool IsValidChar (char ch) => ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9';
+      #region Nested Method -----------------------------------------
+      // Checks the whether the character is valid or not
+      static bool IsValidChar (char ch) => ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9';
+      #endregion
+   }
    #endregion
 }
 #endregion
 
-#region enum ParseState ---------------------------------------------
-enum ParseState { DRIVE, COLON, ROOTSLASH, COM_START, COMPONENT, EXT_START, EXTENSION }
+#region enum EParseState --------------------------------------------
+enum EParseState { DRIVE, COLON, ROOTSLASH, COM_START, COMPONENT, EXT_START, EXTENSION }
 #endregion
