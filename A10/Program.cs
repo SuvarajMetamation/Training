@@ -30,64 +30,62 @@ class Program {
 class FileNameParser {
    #region Public Method --------------------------------------------
    /// <summary>Parses the input into drive, path, file name, and extension</summary>
-   public static bool TryParse (string input, out (string Drive, string Path, string FileName,
-      string Extension) result) {
-      result = ("", "", "", "");
+   public static bool TryParse (string input, out ParsedFileName result) {
+      result = default;
       if (string.IsNullOrEmpty (input)) return false;
       EParseState state = DRIVE;
       (StringBuilder component, StringBuilder path) = (new (), new ());
       var (drive, fileName, extension) = ("", "", "");
       foreach (char ch in input) {
-         switch (state) {
-            case DRIVE:
-               if (ch < 'A' || ch > 'Z') return false;
-               (drive, state) = (ch.ToString (), COLON);
-               break;
-            case COLON:
-               if (ch != ':') return false;
-               state = ROOTSLASH;
-               break;
-            case ROOTSLASH:
-               if (ch != '\\') return false;
-               state = COM_START;
-               break;
-            case COM_START:
-               if (!IsValidChar (ch)) return false;
-               component.Append (ch);
-               state = COMPONENT;
-               break;
-            case COMPONENT:
-               if (IsValidChar (ch)) component.Append (ch);
-               else if (ch == '\\') {
-                  if (path.Length > 0) path.Append ('/');
-                  path.Append (component);
-                  component.Clear ();
-                  state = COM_START;
-               } else if (ch == '.') {
-                  if (path.Length == 0) return false;
-                  fileName = component.ToString ();
-                  component.Clear ();
-                  state = EXT_START;
-               } else return false;
-               break;
-            case EXT_START:
-               if (!IsValidChar (ch)) return false;
-               extension += ch;
-               state = EXTENSION;
-               break;
-            case EXTENSION:
-               if (!IsValidChar (ch)) return false;
-               extension += ch;
-               break;
-         }
+         state = state switch {
+            DRIVE when ch >= 'A' && ch <= 'Z' => SetDrive (ch),
+            COLON when ch == ':' => ROOTSLASH,
+            ROOTSLASH when ch == '\\' => COM_START,
+            COM_START when IsValidChar (ch) => AppendComponent (ch),
+            COMPONENT when IsValidChar (ch) => AppendComponent (ch),
+            COMPONENT when ch == '\\' => AppendPath (),
+            COMPONENT when ch == '.' && path.Length > 0 => SetFileName (),
+            EXT_START when IsValidChar (ch) => AppendExtension (ch),
+            EXTENSION when IsValidChar (ch) => AppendExtension (ch, EXTENSION),
+            _ => (EParseState)(-1)
+         };
       }
       if (state != EXTENSION) return false;
-      result = (drive, path.ToString (), fileName, extension);
+      result = new (drive, path.ToString (), fileName, extension);
       return true;
 
       #region Nested Method -----------------------------------------
       // Checks the whether the character is valid or not
       static bool IsValidChar (char ch) => ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9';
+      #endregion
+
+      #region State Transition Methods ------------------------------
+      // Sets the drive letter and advances to the colon state
+      EParseState SetDrive (char ch) { drive = ch.ToString (); return COLON; }
+
+      // Appends a character to the current path component
+      EParseState AppendComponent (char ch) { component.Append (ch); return COMPONENT; }
+
+      // Moves the completed component into the directory path
+      EParseState AppendPath () {
+         if (path.Length > 0) path.Append ('/');
+         path.Append (component);
+         component.Clear ();
+         return COM_START;
+      }
+
+      // Stores the file name and advances to the extension state
+      EParseState SetFileName () {
+         fileName = component.ToString ();
+         component.Clear ();
+         return EXT_START;
+      }
+
+      // Appends an extension character and returns the next state
+      EParseState AppendExtension (char ch, EParseState next = EXTENSION) {
+         extension += ch;
+         return next;
+      }
       #endregion
    }
    #endregion
@@ -96,4 +94,9 @@ class FileNameParser {
 
 #region enum EParseState --------------------------------------------
 enum EParseState { DRIVE, COLON, ROOTSLASH, COM_START, COMPONENT, EXT_START, EXTENSION }
+#endregion
+
+#region record struct -----------------------------------------------
+readonly record struct ParsedFileName (string Drive, string Path, string FileName,
+   string Extension);
 #endregion
