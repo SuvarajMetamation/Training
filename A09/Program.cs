@@ -40,7 +40,7 @@ class MyQueue<T> {
       Count++;
    }
 
-   /// <summary>Removes and returns the item at the head of the queue.</summary>
+   /// <summary>Removes and returns the item at the head of the queue</summary>
    public T Dequeue () {
       if (IsEmpty) throw new InvalidOperationException ("Oops! There is no items in queue");
       T item = mData[mStart];
@@ -52,13 +52,13 @@ class MyQueue<T> {
    #endregion
 
    #region Properties ----------------------------------------------- 
-   /// <summary>Gets a value indicating whether the queue contains no items.</summary>
+   /// <summary>Gets a value indicating whether the queue contains no items</summary>
    public bool IsEmpty => Count == 0;
-   /// <summary>Gets a value indicating whether the queue has reached its capacity.</summary>
+   /// <summary>Gets a value indicating whether the queue has reached its capacity</summary>
    public bool IsFull => Count == Size;
-   /// <summary>Gets the total number of items the queue can hold before resizing.</summary>
+   /// <summary>Gets the total number of items the queue can hold before resizing</summary>
    public int Size => mData.Length;
-   /// <summary>Gets or sets the current number of items in the queue.</summary>
+   /// <summary>Gets or sets the current number of items in the queue</summary>
    public int Count;
    #endregion
 
