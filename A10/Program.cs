@@ -55,7 +55,7 @@ class FileNameParser {
       return true;
 
       #region Nested Method -----------------------------------------
-      // Checks the whether the character is valid or not
+      // Checks whether the character is an uppercase letter or digit allowed in names
       static bool IsValidChar (char ch) => ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9';
       #endregion
 
