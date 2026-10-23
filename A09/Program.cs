@@ -25,7 +25,7 @@ class MyQueue<T> {
    #endregion
 
    #region Methods --------------------------------------------------
-   /// <summary>Adds an item to the queue,increasing the array capacity if full</summary>
+   /// <summary>Adds an item to the queue,doubles the array capacity if full</summary>
    public void Enqueue (T item) {
       if (IsFull) {
          int size = Size;
