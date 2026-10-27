@@ -102,7 +102,7 @@ enum EState {
 }
 #endregion
 
-#region record struct ParsedFileName ------------------------------
+#region record struct ParsedFileName --------------------------------
 readonly record struct ParsedFileName (string Drive, string Path, string FileName,
    string Extension) {
    #region Method ---------------------------------------------------
