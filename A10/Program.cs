@@ -9,15 +9,36 @@ namespace A10;
 
 using System.Text;
 using static System.Console;
+using static System.ConsoleColor;
 using static EState;
 
 #region class Program -----------------------------------------------------------------------------
 class Program {
    #region Method ---------------------------------------------------
    static void Main () {
-      string input = @"C:\PROGRAMS\DATA\README.TXT";
-      if (FileNameParser.TryParse (input, out var parts)) WriteLine (parts);
-      else WriteLine ("Invalid file name");
+      string[] inputs = [
+      @"C:\PROGRAMS\DATA\README.TXT",
+      @"D:\DATA\FILE.CS",
+      @"C:\PROGRAMS\README",
+      @"CC:\DATA\FILE.TXT",
+      @"C:\DATA\FILE.",
+      @"C:\DATA.V1\FILE.TXT"];
+      foreach (string input in inputs) {
+         WriteLine ();
+         ForegroundColor = Yellow;
+         WriteLine ($"Input: {input}");
+         ResetColor ();
+         if (FileNameParser.TryParse (input, out var parts)) {
+            ForegroundColor = Green;
+            WriteLine (parts);
+         } else {
+            ForegroundColor = Red;
+            WriteLine ("Invalid input");
+         }
+         ResetColor ();
+         WriteLine (new string ('-', 45));
+      }
+      ResetColor ();
    }
    #endregion
 }
@@ -27,7 +48,7 @@ class Program {
 class FileNameParser {
    #region Methods --------------------------------------------------
    /// <summary>Parses the input into drive, path, file name, and extension</summary>
-   public static bool TryParse (string input, out ParsedFileName result) {
+   public static bool TryParse (string input, out FileParts result) {
       result = default;
       if (string.IsNullOrEmpty (input)) return false;
       EState state = Drive;
@@ -37,12 +58,12 @@ class FileNameParser {
          state = state switch {
             Drive when ch >= 'A' && ch <= 'Z' => SetDrive (ch),
             Colon when ch == ':' => Rootslash,
-            Rootslash when ch == '\\' => Component_Start,
-            Component_Start when IsValidChar (ch) => AppendComponent (ch),
+            Rootslash when ch == '\\' => ComponentStart,
+            ComponentStart when IsValidChar (ch) => AppendComponent (ch),
             Component when IsValidChar (ch) => AppendComponent (ch),
             Component when ch == '\\' => AppendPath (),
             Component when ch == '.' && path.Length > 0 => SetFileName (),
-            Extension_Start when IsValidChar (ch) => AppendExtension (ch),
+            ExtensionStart when IsValidChar (ch) => AppendExtension (ch),
             Extension when IsValidChar (ch) => AppendExtension (ch, Extension),
             _ => (EState)(-1)
          };
@@ -68,14 +89,14 @@ class FileNameParser {
          if (path.Length > 0) path.Append ('/');
          path.Append (component);
          component.Clear ();
-         return Component_Start;
+         return ComponentStart;
       }
 
       // Stores the file name and advances to the extension state
       EState SetFileName () {
          fileName = component.ToString ();
          component.Clear ();
-         return Extension_Start;
+         return ExtensionStart;
       }
 
       // Appends an extension character and returns the next state
@@ -92,23 +113,29 @@ class FileNameParser {
 #region enum EState -------------------------------------------------
 /// <summary>Represents the states used while parsing a file path</summary>
 enum EState {
+   /// <summary>Reads the drive letter</summary>
    Drive,
+   /// <summary>Validates the colon following the drive letter</summary>
    Colon,
+   /// <summary>Validates the root directory separator</summary>
    Rootslash,
-   Component_Start, // Waits for the first character of a path component
-   Component,       // Reads the remaining characters of a folder or file name
-   Extension_Start,
+   /// <summary>Waits for the first character of a path component</summary>
+   ComponentStart,
+   /// <summary>Reads the characters of a directory or file name</summary>
+   Component,
+   /// <summary>Waits for the first character of the file extension</summary>
+   ExtensionStart,
+   /// <summary>Reads the remaining characters of the file extension</summary>
    Extension
 }
 #endregion
 
-#region record struct ParsedFileName --------------------------------
-readonly record struct ParsedFileName (string Drive, string Path, string FileName,
-   string Extension) {
+#region record struct FileParts -------------------------------------
+readonly record struct FileParts (string Drive, string Path, string FileName, string Extension) {
    #region Method ---------------------------------------------------
    /// <summary>Returns the parsed file details as formatted text</summary>
-   public override string ToString () => $"Drive     :{Drive}\nPath      :{Path}" +
-      $"\nFileName  :{FileName}\nExtension :{Extension}";
+   public override string ToString () => $"{"Drive",-10}: {Drive}\n{"Path",-10}: {Path}\n" +
+      $"{"FileName",-10}: {FileName}\n{"Extension",-10}: {Extension}";
    #endregion
 }
 #endregion
