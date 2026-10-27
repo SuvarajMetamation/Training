@@ -15,31 +15,7 @@ using static EState;
 #region class Program -----------------------------------------------------------------------------
 class Program {
    #region Method ---------------------------------------------------
-   static void Main () {
-      string[] inputs = [
-      @"C:\PROGRAMS\DATA\README.TXT",
-      @"D:\DATA\FILE.CS",
-      @"C:\PROGRAMS\README",
-      @"CC:\DATA\FILE.TXT",
-      @"C:\DATA\FILE.",
-      @"C:\DATA.V1\FILE.TXT"];
-      foreach (string input in inputs) {
-         WriteLine ();
-         ForegroundColor = Yellow;
-         WriteLine ($"Input: {input}");
-         ResetColor ();
-         if (FileNameParser.TryParse (input, out var parts)) {
-            ForegroundColor = Green;
-            WriteLine (parts);
-         } else {
-            ForegroundColor = Red;
-            WriteLine ("Invalid input");
-         }
-         ResetColor ();
-         WriteLine (new string ('-', 45));
-      }
-      ResetColor ();
-   }
+   static void Main () => FileNameTester.Run ();
    #endregion
 }
 #endregion
@@ -136,6 +112,38 @@ readonly record struct FileParts (string Drive, string Path, string FileName, st
    /// <summary>Returns the parsed file details as formatted text</summary>
    public override string ToString () => $"{"Drive",-10}: {Drive}\n{"Path",-10}: {Path}\n" +
       $"{"FileName",-10}: {FileName}\n{"Extension",-10}: {Extension}";
+   #endregion
+}
+#endregion
+
+#region class FileNameTester ----------------------------------------------------------------------
+class FileNameTester {
+   #region TestMethod -----------------------------------------------
+   public static void Run () {
+      string[] filePaths = [
+      @"C:\PROGRAMS\DATA\README.TXT",
+      @"D:\DATA\FILE.CS",
+      @"C:\PROGRAMS\README",
+      @"CC:\DATA\FILE.TXT",
+      @"C:\DATA\FILE.",
+      @"C:\DATA.V1\FILE.TXT"];
+      foreach (string filePath in filePaths) {
+         WriteLine ();
+         ForegroundColor = Yellow;
+         WriteLine ($"Input: {filePath}");
+         ResetColor ();
+         if (FileNameParser.TryParse (filePath, out var fileParts)) {
+            ForegroundColor = Green;
+            WriteLine (fileParts);
+         } else {
+            ForegroundColor = Red;
+            WriteLine ("Invalid input");
+         }
+         ResetColor ();
+         WriteLine (new string ('-', 45));
+      }
+      ResetColor ();
+   }
    #endregion
 }
 #endregion
