@@ -22,7 +22,7 @@ class Program {
       WriteLine (queue.Dequeue (HEAD)); // 1
       WriteLine (queue.Dequeue (TAIL)); // 20
       WriteLine (queue.Dequeue (HEAD)); // 5
-      WriteLine (queue.Dequeue (TAIL)); //10
+      WriteLine (queue.Dequeue (TAIL)); // 10
    }
 }
 #endregion
@@ -39,9 +39,9 @@ class MyDQueue<T> {
       EnsureCapacity ();
       int index;
       if (side == HEAD) {
-         mStart = (mStart - 1 + Size) % Size;
+         mStart = (mStart - 1 + mData.Length) % mData.Length;
          index = mStart;
-      } else index = (mStart + mCount) % Size;
+      } else index = (mStart + mCount) % mData.Length;
       mData[index] = item;
       mCount++;
    }
@@ -52,8 +52,8 @@ class MyDQueue<T> {
       int index;
       if (side == HEAD) {
          index = mStart;
-         mStart = (mStart + 1) % Size;
-      } else index = (mStart + mCount - 1) % Size;
+         mStart = (mStart + 1) % mData.Length;
+      } else index = (mStart + mCount - 1) % mData.Length;
       T item = mData[index];
       mData[index] = default!;
       mCount--;
@@ -62,11 +62,11 @@ class MyDQueue<T> {
    #endregion
 
    #region Implementation -------------------------------------------
-   // Resize the array size
+   // Resize the array
    void EnsureCapacity () {
-      if (mCount != Size) return;
-      T[] temp = new T[Size * 2];
-      for (int i = 0; i < mCount; i++) temp[i] = mData[(mStart + i) % Size];
+      if (mCount != mData.Length) return;
+      T[] temp = new T[mData.Length * 2];
+      for (int i = 0; i < mCount; i++) temp[i] = mData[(mStart + i) % mData.Length];
       mData = temp;
       mStart = 0;
    }
@@ -74,7 +74,7 @@ class MyDQueue<T> {
 
    #region Properties -----------------------------------------------
    /// <summary>Gets the current capacity of the queue</summary>
-   public int Size => mData.Length;
+   public int Count => mCount;
    #endregion
 
    #region Private Data ---------------------------------------------
