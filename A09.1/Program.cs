@@ -73,7 +73,7 @@ class MyDQueue<T> {
    #endregion
 
    #region Properties -----------------------------------------------
-   /// <summary>Gets the current capacity of the queue</summary>
+   /// <summary>Gets the current number of elements present in the array</summary>
    public int Count => mCount;
    #endregion
 
