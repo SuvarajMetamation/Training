@@ -39,9 +39,9 @@ class MyDQueue<T> {
       EnsureCapacity ();
       int index;
       if (side == HEAD) {
-         mStart = (mStart - 1 + mData.Length) % mData.Length;
+         mStart = (mStart - 1 + Capacity) % Capacity;
          index = mStart;
-      } else index = (mStart + mCount) % mData.Length;
+      } else index = (mStart + mCount) % Capacity;
       mData[index] = item;
       mCount++;
    }
@@ -52,8 +52,8 @@ class MyDQueue<T> {
       int index;
       if (side == HEAD) {
          index = mStart;
-         mStart = (mStart + 1) % mData.Length;
-      } else index = (mStart + mCount - 1) % mData.Length;
+         mStart = (mStart + 1) % Capacity;
+      } else index = (mStart + mCount - 1) % Capacity;
       T item = mData[index];
       mData[index] = default!;
       mCount--;
@@ -64,9 +64,9 @@ class MyDQueue<T> {
    #region Implementation -------------------------------------------
    // Resize the array
    void EnsureCapacity () {
-      if (mCount != mData.Length) return;
-      T[] temp = new T[mData.Length * 2];
-      for (int i = 0; i < mCount; i++) temp[i] = mData[(mStart + i) % mData.Length];
+      if (mCount != Capacity) return;
+      T[] temp = new T[Capacity * 2];
+      for (int i = 0; i < mCount; i++) temp[i] = mData[(mStart + i) % Capacity];
       mData = temp;
       mStart = 0;
    }
@@ -80,6 +80,7 @@ class MyDQueue<T> {
    #region Private Data ---------------------------------------------
    T[] mData;
    int mStart, mCount;
+   int Capacity => mData.Length;
    #endregion
 }
 #endregion
