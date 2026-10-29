@@ -43,96 +43,76 @@ class Program {
 
 #region class DoubleParser ------------------------------------------------------------------------
 static class DoubleParser {
-   #region Methods --------------------------------------------------
+   #region Method ---------------------------------------------------
    public static bool TryParse (string input, out double result) {
       result = 0;
       if (string.IsNullOrWhiteSpace (input)) return false;
       sInput = input.Trim ();
       sPosition = 0;
       try {
-         bool isNegative = IsReadSign ();
-         decimal number = ReadNumber ();
-         int exponent = ReadExponent ();
+         // Read the optional sign
+         bool isNegative = false;
+         if (Current == '+' || Current == '-') {
+            isNegative = Current == '-';
+            sPosition++;
+         }
+         decimal number = 0;
+         // Read the integer and fractional parts.
+         bool hasInt = false, hasFrac = false;
+         while (char.IsDigit (Current)) {
+            number = number * 10m + (Current - '0');
+            hasInt = true;
+            sPosition++;
+         }
+         if (Current == '.') {
+            sPosition++;
+            decimal fraction = 0.1m;
+            while (char.IsDigit (Current)) {
+               number += (Current - '0') * fraction;
+               fraction /= 10m;
+               hasFrac = true;
+               sPosition++;
+            }
+         }
+         // At least one digit must be present
+         if (!hasInt && !hasFrac) throw new ParseException ();
+         // Read the optional exponent and its sign
+         int exponent = 0;
+         if (Current == 'e' || Current == 'E') {
+            sPosition++;
+            bool isExpNegative = false;
+            if (Current == '+' || Current == '-') {
+               isExpNegative = Current == '-';
+               sPosition++;
+            }
+            // An exponent must contain at least one digit
+            if (!char.IsDigit (Current)) throw new ParseException ();
+            while (char.IsDigit (Current)) {
+               exponent = exponent * 10 + (Current - '0');
+               sPosition++;
+            }
+            if (isExpNegative) exponent = -exponent;
+         }
+         // Reject any characters left after parsing
          if (!EndOfInput) return false;
-         result = ApplyExponent (number, exponent);
+         // Apply the exponent to obtain the final value
+         if (exponent >= -28 && exponent <= 28) {
+            decimal factor = 1m;
+            if (exponent >= 0) for (int index = 0; index < exponent; index++) factor *= 10m;
+            else for (int index = 0; index < -exponent; index++) factor /= 10m;
+            result = (double)(number * factor);
+         } else result = (double)number * Math.Pow (10.0, exponent);
+         // Apply the original number's sign
          if (isNegative) result = -result;
          return true;
       } catch (ParseException) { return false; }
    }
-
-   static bool IsReadSign () {
-      if (Current == '+') {
-         MoveNext ();
-         return false;
-      }
-      if (Current == '-') {
-         MoveNext ();
-         return true;
-      }
-      return false;
-   }
-
-   static decimal ReadNumber () {
-      decimal number = 0;
-      var (hasInt, hasFrac) = (IsReadDigits (ref number), false);
-      if (Current == '.') {
-         MoveNext ();
-         decimal fraction = 0.1m;
-         while (char.IsDigit (Current)) {
-            number += DigitValue (Current) * fraction;
-            fraction /= 10m;
-            hasFrac = true;
-            MoveNext ();
-         }
-      }
-      if (!hasInt && !hasFrac) throw new ParseException ();
-      return number;
-   }
-
-   static bool IsReadDigits (ref decimal number) {
-      bool found = false;
-      while (char.IsDigit (Current)) {
-         number = number * 10m + DigitValue (Current);
-         found = true;
-         MoveNext ();
-      }
-      return found;
-   }
-
-   static int ReadExponent () {
-      if (Current != 'e' && Current != 'E') return 0;
-      MoveNext ();
-      bool isNegative = false;
-      if (Current == '+' || Current == '-') {
-         isNegative = Current == '-';
-         MoveNext ();
-      }
-      if (!char.IsDigit (Current)) throw new ParseException ();
-      int exponent = 0;
-      while (char.IsDigit (Current)) {
-         exponent = exponent * 10 + DigitValue (Current);
-         MoveNext ();
-      }
-      return isNegative ? -exponent : exponent;
-   }
-
-   static double ApplyExponent (decimal number, int exponent) {
-      if (exponent >= -28 && exponent <= 28) {
-         decimal factor = 1m;
-         if (exponent >= 0) for (int index = 0; index < exponent; index++) factor *= 10m;
-         else for (int index = 0; index < -exponent; index++) factor /= 10m;
-         return (double)(number * factor);
-      }
-      return (double)number * Math.Pow (10.0, exponent);
-   }
-
-   static void MoveNext () => sPosition++;
-
-   static int DigitValue (char c) => c - '0';
    #endregion
 
    #region Private Properties ---------------------------------------
+   // Get the current character, or '\0' when the input ends
    static char Current => EndOfInput ? '\0' : sInput[sPosition];
+   // Check whether all input characters have been processed
    static bool EndOfInput => sPosition >= sInput.Length;
    #endregion
 
