@@ -13,6 +13,7 @@ using static System.Console;
 using static System.ConsoleColor;
 using static System.ConsoleKey;
 using static System.Math;
+using static System.StringSplitOptions;
 
 namespace A12;
 
@@ -65,8 +66,7 @@ static class Wordle {
       using var stream = Assembly.GetExecutingAssembly ().GetManifestResourceStream ($"A12.Data.{file}")
          ?? throw new FileNotFoundException ($"Resource {file} was not found.");
       using var reader = new StreamReader (stream);
-      return reader.ReadToEnd ().Split (['\r', '\n'],
-         StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+      return reader.ReadToEnd ().Split (['\r', '\n'], RemoveEmptyEntries | TrimEntries);
    }
 
    // Displays the game board
