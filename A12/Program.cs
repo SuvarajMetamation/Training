@@ -35,6 +35,7 @@ static class Wordle {
       CursorVisible = false;
       Clear ();
       Initialize ();
+      DisplayHeader ();
       DisplayBoard ();
       DisplayAlphabets ();
       while (!sIsGameOver) {
@@ -71,32 +72,26 @@ static class Wordle {
 
    // Displays the game board
    static void DisplayBoard () {
-      GetPosition (out int left, out int top);
-      int boardLeft = left + (BOARDWIDTH - LEN * 2 + 1) / 2;
+      GetPosition (out _, out int top);
+      int boardLeft = (WindowWidth - 19) / 2;
       int evaluatedCount = sInputs.Count - sWord.Length;
-      foreach (int row in Enumerable.Range (0, MAXTRIES)) {
-         SetCursorPosition (boardLeft, top + row);
-         foreach (int col in Enumerable.Range (0, LEN)) {
+      for (int row = 0; row < MAXTRIES; row++) {
+         for (int col = 0; col < LEN; col++) {
             int index = row * LEN + col;
-            if (index < sInputs.Count) {
-               var (ch, state) = sInputs[index];
-               if (index < evaluatedCount)
-                  ForegroundColor = state switch {
-                     Exact => Green,
-                     Misplaced => Blue,
-                     _ => DarkGray
-                  };
-               Write ($"{ch} ");
-               ResetColor ();
-            } else Write (index == sInputs.Count ? "\u25cc " : ". ");
+            char ch = index < sInputs.Count ? sInputs[index].Item1 : ' ';
+            SetCursorPosition (boardLeft + col * 4, top + row);
+            BackgroundColor = index < evaluatedCount
+               ? sInputs[index].Item2 switch {
+                  Exact => Green,
+                  Misplaced => DarkYellow,
+                  Absent => DarkGray,
+                  _ => Black
+               } : index < sInputs.Count ? DarkGray : Black;
+            ForegroundColor = White;
+            Write ($" {ch} ");
+            ResetColor ();
          }
       }
-   }
-
-   // Gets the starting position to centre the game in the console
-   static void GetPosition (out int left, out int top) {
-      left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
-      top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
    }
 
    // Displays the alphabet with the evaluated letter colors
@@ -104,21 +99,34 @@ static class Wordle {
       GetPosition (out int left, out int top);
       int evaluatedCount = sInputs.Count - sWord.Length;
       var evaluated = sInputs.Take (evaluatedCount);
-      SetCursorPosition (left, top + MAXTRIES + 1);
+      SetCursorPosition ((WindowWidth - BOARDWIDTH) / 2, top + MAXTRIES + 1);
       WriteLine (new string ('\u2500', BOARDWIDTH));
       SetCursorPosition (left, top + MAXTRIES + 2);
       int index = 0;
       foreach (char ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
-         ForegroundColor = evaluated switch {
-            _ when evaluated.Contains ((ch, Exact)) => Green,
-            _ when evaluated.Contains ((ch, Misplaced)) => Blue,
-            _ when evaluated.Contains ((ch, Absent)) => DarkGray,
-            _ => White
-         };
-         Write ($"{ch}   ");
+         BackgroundColor = evaluated.Any (x => x.Item1 == ch && x.Item2 == Exact) ? Green :
+                           evaluated.Any (x => x.Item1 == ch && x.Item2 == Misplaced) ? DarkYellow :
+                           evaluated.Any (x => x.Item1 == ch && x.Item2 == Absent) ? DarkGray :
+                           DarkGray;
+         ForegroundColor = White;
+         Write ($" {ch} ");
          ResetColor ();
+         Write (" ");
          if (++index % ROWSIZE == 0) SetCursorPosition (left, top + MAXTRIES + 2 + index / ROWSIZE);
       }
+   }
+
+   // Displays the game title and instructions
+   static void DisplayHeader () {
+      GetPosition (out int left, out int top);
+      SetCursorPosition (left, top - 4);
+      ForegroundColor = Green;
+      WriteCentered ("W O R D L E");
+      ResetColor ();
+      SetCursorPosition (left, top - 3);
+      WriteCentered ("Guess the five-letter word");
+      SetCursorPosition (left, top - 2);
+      WriteCentered ("You have six attempts to find it");
    }
 
    // Updates the game state
@@ -179,12 +187,19 @@ static class Wordle {
    // Prints the game result
    static void PrintResult () {
       GetPosition (out int left, out int top);
-      SetCursorPosition (left, Min (WindowHeight - 1, top + BOARDHEIGHT + 1));
+      SetCursorPosition (left, top + BOARDHEIGHT + 1);
       if (sIsFound) {
          ForegroundColor = Green;
-         WriteLine ($"You found the word in {sInputs.Count / LEN} tries");
-         ResetColor ();
-      } else WriteLine ($"Sorry - the word was {sSeed}");
+         WriteCentered ("Congratulations! You found the word!");
+         SetCursorPosition (left, CursorTop + 1);
+         WriteCentered ($"Attempts used: {sInputs.Count / LEN}/{MAXTRIES}");
+      } else {
+         ForegroundColor = Yellow;
+         WriteCentered ("Game Over!");
+         SetCursorPosition (left, CursorTop + 1);
+         WriteCentered ($"The correct word was: {sSeed}");
+      }
+      ResetColor ();
    }
 
    // Prints a message for an invalid word
@@ -199,6 +214,20 @@ static class Wordle {
       ReadKey (true);
       SetCursorPosition (left, messageTop);
       Write (new string (' ', 55));
+   }
+   #endregion
+
+   #region Helper functions -----------------------------------------
+   // Writes text at the horizontal centre of the console
+   static void WriteCentered (string text) {
+      SetCursorPosition (Max (0, (WindowWidth - text.Length) / 2), CursorTop);
+      Write (text);
+   }
+
+   // Gets the starting position to centre the game in the console
+   static void GetPosition (out int left, out int top) {
+      left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
+      top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
    }
    #endregion
 
