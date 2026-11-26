@@ -71,13 +71,12 @@ static class Wordle {
 
    // Displays the game board
    static void DisplayBoard () {
-      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
-      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      GetPosition (out int left, out int top);
       int boardLeft = left + (BOARDWIDTH - LEN * 2 + 1) / 2;
       int evaluatedCount = sInputs.Count - sWord.Length;
-      for (int row = 0; row < MAXTRIES; row++) {
+      foreach (int row in Enumerable.Range (0, MAXTRIES)) {
          SetCursorPosition (boardLeft, top + row);
-         for (int col = 0; col < LEN; col++) {
+         foreach (int col in Enumerable.Range (0, LEN)) {
             int index = row * LEN + col;
             if (index < sInputs.Count) {
                var (ch, state) = sInputs[index];
@@ -94,17 +93,22 @@ static class Wordle {
       }
    }
 
+   // Gets the starting position to centre the game in the console
+   static void GetPosition (out int left, out int top) {
+      left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
+      top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+   }
+
    // Displays the alphabet with the evaluated letter colors
    static void DisplayAlphabets () {
-      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
-      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      GetPosition (out int left, out int top);
       int evaluatedCount = sInputs.Count - sWord.Length;
       var evaluated = sInputs.Take (evaluatedCount);
       SetCursorPosition (left, top + MAXTRIES + 1);
       WriteLine (new string ('\u2500', BOARDWIDTH));
       SetCursorPosition (left, top + MAXTRIES + 2);
-      for (int j = 1; j <= ALPHABETCOUNT; j++) {
-         char ch = (char)('A' + j - 1);
+      int index = 0;
+      foreach (char ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
          ForegroundColor = evaluated switch {
             _ when evaluated.Contains ((ch, Exact)) => Green,
             _ when evaluated.Contains ((ch, Misplaced)) => Blue,
@@ -113,7 +117,7 @@ static class Wordle {
          };
          Write ($"{ch}   ");
          ResetColor ();
-         if (j % ROWSIZE == 0) SetCursorPosition (left, top + MAXTRIES + 2 + j / ROWSIZE);
+         if (++index % ROWSIZE == 0) SetCursorPosition (left, top + MAXTRIES + 2 + index / ROWSIZE);
       }
    }
 
@@ -150,29 +154,23 @@ static class Wordle {
 
    // Restructures the list based on the seed word
    static void Restructure () {
-      var rem = new Dictionary<char, int> ();
-      var result = new EState[LEN];
+      var (rem, result) = (new Dictionary<char, int> (), new EState[LEN]);
       // Identify exact matches and count remaining letters
       for (int i = 0; i < LEN; i++) {
          char ch = sSeed[i];
          if (sWord[i] == ch) result[i] = Exact;
          else rem[ch] = rem.GetValueOrDefault (ch) + 1;
       }
-
       // Identify misplaced and absent letters
       for (int i = 0; i < LEN; i++) {
          char ch = sWord[i];
-
          if (result[i] == EState.None) {
             if (rem.GetValueOrDefault (ch) > 0) {
                result[i] = Misplaced;
                rem[ch]--;
-            } else {
-               result[i] = Absent;
-            }
+            } else result[i] = Absent;
          }
       }
-
       // Replace the entered letters with evaluated results
       sInputs.RemoveRange (sInputs.Count - LEN, LEN);
       sInputs.AddRange (sWord.Select ((ch, i) => (ch, result[i])));
@@ -180,8 +178,7 @@ static class Wordle {
 
    // Prints the game result
    static void PrintResult () {
-      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
-      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      GetPosition (out int left, out int top);
       SetCursorPosition (left, Min (WindowHeight - 1, top + BOARDHEIGHT + 1));
       if (sIsFound) {
          ForegroundColor = Green;
@@ -192,8 +189,7 @@ static class Wordle {
 
    // Prints a message for an invalid word
    static void PrintMsg (string s) {
-      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
-      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      GetPosition (out int left, out int top);
       int messageTop = Min (WindowHeight - 1, top + BOARDHEIGHT + 1);
       SetCursorPosition (left, messageTop);
       ForegroundColor = Yellow;
@@ -216,7 +212,6 @@ static class Wordle {
    #region Constants ------------------------------------------------
    const int LEN = 5;
    const int MAXTRIES = 6;
-   const int ALPHABETCOUNT = 26;
    const int ROWSIZE = 7;
    const int BOARDWIDTH = ROWSIZE * 4;
    const int BOARDHEIGHT = MAXTRIES + 6;
