@@ -1,16 +1,18 @@
-﻿// --------------------------------------------------------------------------------------------
+﻿
+// --------------------------------------------------------------------------------------------
 // Training ~ A training program for new joinee at Trumpf Metamation, Batch - July 2026.
 // Copyright (c) Metamation India.
-// ------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------
 // Program.cs
 // A12: Wordle
 // --------------------------------------------------------------------------------------------
 using System.Reflection;
 using System.Text;
+using static A12.EState;
 using static System.Console;
 using static System.ConsoleColor;
 using static System.ConsoleKey;
-using static A12.EState;
+using static System.Math;
 
 namespace A12;
 
@@ -25,19 +27,22 @@ internal class Program {
 #region class Wordle ------------------------------------------------------------------------------
 /// <summary>Class to implement the wordle game</summary>
 static class Wordle {
-   #region Methods --------------------------------------------------
+   #region Method ---------------------------------------------------
    /// <summary>Runs the wordle game</summary>
    public static void Run () {
       OutputEncoding = Encoding.UTF8;
       CursorVisible = false;
+      Clear ();
       Initialize ();
-      Display ();
-      while (!siGameOver) {
-         ConsoleKeyInfo key = ReadKey (true);
-         UpdateGame (key);
-         Display ();
+      DisplayBoard ();
+      DisplayAlphabets ();
+      while (!sIsGameOver) {
+         bool refreshAlphabet = UpdateGame (ReadKey (true));
+         DisplayBoard ();
+         if (refreshAlphabet) DisplayAlphabets ();
       }
       PrintResult ();
+      CursorVisible = true;
    }
    #endregion
 
@@ -45,142 +50,180 @@ static class Wordle {
    // Initializes the words for seed and valid words
    static void Initialize () {
       try {
-         var (seedWords, valWords) = (LoadStrings ("puzzle.txt"), LoadStrings ("dict.txt"));
-         (sSeed, sValidWords) = (seedWords[new Random ().Next (0, seedWords.Length - 1)], valWords);
+         var (seedWords, validWords) = (LoadStrings ("puzzle.txt"), LoadStrings ("dict.txt"));
+         if (seedWords.Length == 0 || validWords.Length == 0)
+            throw new InvalidDataException ("Word files cannot be empty.");
+         sSeed = seedWords[Random.Shared.Next (seedWords.Length)].ToUpperInvariant ();
+         sValidWords = [.. validWords.Select (w => w.ToUpperInvariant ())];
       } catch (Exception ex) {
-         Write ($"Error reading files!! {ex.Message}"); Environment.Exit (0);
+         WriteLine ($"Error reading files!! {ex.Message}"); Environment.Exit (1);
       }
    }
 
    // Collects words from text files
    static string[] LoadStrings (string file) {
-      using var stream = Assembly.GetExecutingAssembly ().GetManifestResourceStream ($"A12.Data.{file}");
-      using var reader = new StreamReader (stream!);
-      return reader.ReadToEnd ().Split ("\r\n");
+      using var stream = Assembly.GetExecutingAssembly ().GetManifestResourceStream ($"A12.Data.{file}")
+         ?? throw new FileNotFoundException ($"Resource {file} was not found.");
+      using var reader = new StreamReader (stream);
+      return reader.ReadToEnd ().Split (['\r', '\n'],
+         StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
    }
 
-   // Displays the interface to the console
-   static void Display () {
-      Clear ();
-      int total = 6 * LEN, alpha = 26, rowSize = 7;
-      for (int i = 0; i < total; i++) {
-         if (i % LEN == 0) Write ("\n\t");
-         if (i < sInputs.Count) {
-            var (ch, type) = sInputs[i];
-            if (i < sColored) ForegroundColor = type switch {
-               Exact => Green,
-               Misplaced => Blue,
-               _ => DarkGray,
-            };
-            Write ($"{ch} ");
-            ResetColor ();
-         } else Write ($"{(i == sInputs.Count ? '\u25cc' : '.')} ");
+   // Displays the game board
+   static void DisplayBoard () {
+      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
+      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      int boardLeft = left + (BOARDWIDTH - LEN * 2 + 1) / 2;
+      int evaluatedCount = sInputs.Count - sWord.Length;
+      for (int row = 0; row < MAXTRIES; row++) {
+         SetCursorPosition (boardLeft, top + row);
+         for (int col = 0; col < LEN; col++) {
+            int index = row * LEN + col;
+            if (index < sInputs.Count) {
+               var (ch, state) = sInputs[index];
+               if (index < evaluatedCount)
+                  ForegroundColor = state switch {
+                     Exact => Green,
+                     Misplaced => Blue,
+                     _ => DarkGray
+                  };
+               Write ($"{ch} ");
+               ResetColor ();
+            } else Write (index == sInputs.Count ? "\u25cc " : ". ");
+         }
       }
-      Line ();
-      var temp = sInputs.Take (sColored);
-      for (int j = 1; j <= alpha; j++) {
-         char c = (char)(j + 64);
-         ForegroundColor = temp switch {
-            _ when temp.Contains ((c, Exact)) => Green,
-            _ when temp.Contains ((c, Misplaced)) => Blue,
-            _ when temp.Contains ((c, Absent)) => DarkGray,
+   }
+
+   // Displays the alphabet with the evaluated letter colors
+   static void DisplayAlphabets () {
+      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
+      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      int evaluatedCount = sInputs.Count - sWord.Length;
+      var evaluated = sInputs.Take (evaluatedCount);
+      SetCursorPosition (left, top + MAXTRIES + 1);
+      WriteLine (new string ('\u2500', BOARDWIDTH));
+      SetCursorPosition (left, top + MAXTRIES + 2);
+      for (int j = 1; j <= ALPHABETCOUNT; j++) {
+         char ch = (char)('A' + j - 1);
+         ForegroundColor = evaluated switch {
+            _ when evaluated.Contains ((ch, Exact)) => Green,
+            _ when evaluated.Contains ((ch, Misplaced)) => Blue,
+            _ when evaluated.Contains ((ch, Absent)) => DarkGray,
             _ => White
          };
-         Write ($"{c}   ");
-         if (j % rowSize == 0) WriteLine ();
+         Write ($"{ch}   ");
          ResetColor ();
+         if (j % ROWSIZE == 0) SetCursorPosition (left, top + MAXTRIES + 2 + j / ROWSIZE);
       }
    }
-
-   // Draws a separation line
-   static void Line () => WriteLine ($"\n{new string ('\u2500', 25)}\n");
 
    // Updates the game state
-   static void UpdateGame (ConsoleKeyInfo info) {
-      char ch = char.ToUpper (info.KeyChar);
-      if (ch is >= 'A' and <= 'Z' && sWord.Length != LEN) {
-         sInputs.Add ((ch, Hold));
+   static bool UpdateGame (ConsoleKeyInfo info) {
+      char ch = char.ToUpperInvariant (info.KeyChar);
+      // Accept alphabetic characters
+      if (ch is >= 'A' and <= 'Z' && sWord.Length < LEN) {
+         sInputs.Add ((ch, EState.None));
          sWord += ch;
-         return;
+         return false;
       }
-      if (info.Key is Enter && sWord.Length == LEN) {
+      // Evaluate the entered word
+      if (info.Key == Enter && sWord.Length == LEN) {
          if (sValidWords.Contains (sWord)) {
+            sIsFound = sWord == sSeed;
             Restructure ();
-            sColored += LEN;
-            siFound = sWord == sSeed;
-            siGameOver = siFound || sColored / LEN == 6;
-            if (siGameOver) return;
-         } else {
-            PrintMsg (sWord);
-            sInputs.RemoveRange (sInputs.Count - LEN, LEN);
+            sWord = string.Empty;
+            sIsGameOver = sIsFound || sInputs.Count / LEN == MAXTRIES;
+            return true;
          }
+         sInputs.RemoveRange (sInputs.Count - LEN, LEN);
+         PrintMsg (sWord);
          sWord = string.Empty;
-         return;
+         return false;
       }
-      if (info.Key is Backspace or Delete && sWord.Length > 0) {
+      // Remove the last entered character
+      if ((info.Key is Backspace or Delete) && sWord.Length > 0) {
          sInputs.RemoveAt (sInputs.Count - 1);
          sWord = sWord[..^1];
-         return;
       }
+      return false;
    }
 
-   // Restructures the list
+   // Restructures the list based on the seed word
    static void Restructure () {
       var rem = new Dictionary<char, int> ();
       var result = new EState[LEN];
+      // Identify exact matches and count remaining letters
       for (int i = 0; i < LEN; i++) {
-         var s = sSeed[i];
-         if (sWord[i] == s) result[i] = Exact;
-         else rem[s] = rem.GetValueOrDefault (s) + 1;
+         char ch = sSeed[i];
+         if (sWord[i] == ch) result[i] = Exact;
+         else rem[ch] = rem.GetValueOrDefault (ch) + 1;
       }
+
+      // Identify misplaced and absent letters
       for (int i = 0; i < LEN; i++) {
-         var w = sWord[i];
-         ref var r = ref result[i];
-         if (r == EState.None)
-            if (rem.GetValueOrDefault (w) > 0) {
-               r = Misplaced;
-               rem[w]--;
-            } else r = Absent;
+         char ch = sWord[i];
+
+         if (result[i] == EState.None) {
+            if (rem.GetValueOrDefault (ch) > 0) {
+               result[i] = Misplaced;
+               rem[ch]--;
+            } else {
+               result[i] = Absent;
+            }
+         }
       }
+
+      // Replace the entered letters with evaluated results
       sInputs.RemoveRange (sInputs.Count - LEN, LEN);
-      sInputs.AddRange (sWord.Select ((c, i) => (c, result[i])));
+      sInputs.AddRange (sWord.Select ((ch, i) => (ch, result[i])));
    }
 
-   // Prints result to the console
+   // Prints the game result
    static void PrintResult () {
-      Line ();
-      if (siFound) {
+      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
+      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      SetCursorPosition (left, Min (WindowHeight - 1, top + BOARDHEIGHT + 1));
+      if (sIsFound) {
          ForegroundColor = Green;
-         WriteLine ($"You found the word in {sColored / LEN} tries");
+         WriteLine ($"You found the word in {sInputs.Count / LEN} tries");
          ResetColor ();
       } else WriteLine ($"Sorry - the word was {sSeed}");
    }
 
-   // Prints a message to the console
+   // Prints a message for an invalid word
    static void PrintMsg (string s) {
-      Line ();
+      int left = Max (0, (WindowWidth - BOARDWIDTH) / 2);
+      int top = Max (0, (WindowHeight - BOARDHEIGHT) / 2);
+      int messageTop = Min (WindowHeight - 1, top + BOARDHEIGHT + 1);
+      SetCursorPosition (left, messageTop);
       ForegroundColor = Yellow;
-      WriteLine ($"   {s} is not a word");
+      WriteLine ($"{s} is not a word");
       ResetColor ();
       WriteLine ("Enter any key to continue");
       ReadKey (true);
+      SetCursorPosition (left, messageTop);
+      Write (new string (' ', 55));
    }
    #endregion
 
    #region Private data ---------------------------------------------
    static List<(char, EState)> sInputs = [];
-   static int sColored;
-   static bool siGameOver, siFound;
+   static bool sIsGameOver, sIsFound;
    static string sSeed = string.Empty, sWord = string.Empty;
    static string[] sValidWords = [];
    #endregion
 
    #region Constants ------------------------------------------------
    const int LEN = 5;
+   const int MAXTRIES = 6;
+   const int ALPHABETCOUNT = 26;
+   const int ROWSIZE = 7;
+   const int BOARDWIDTH = ROWSIZE * 4;
+   const int BOARDHEIGHT = MAXTRIES + 6;
    #endregion
 }
 #endregion
 
 #region enum EState -------------------------------------------------------------------------------
-enum EState { None, Exact, Misplaced, Absent, Hold }
+enum EState { None, Exact, Misplaced, Absent }
 #endregion
